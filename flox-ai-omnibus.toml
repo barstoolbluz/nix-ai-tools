@@ -1,0 +1,215 @@
+# Omnibus Flox Environment for AI Coding Tools
+# Based on actual packages available in Flox catalog
+
+[options]
+systems = ["x86_64-linux", "aarch64-linux", "x86_64-darwin", "aarch64-darwin"]
+
+[install]
+# === Verified Available AI Coding Agents ===
+
+# Anthropic
+claude-code.pkg-path = "claude-code"
+claude-code.pkg-group = "ai-agents"
+claude-code.priority = 1  # High priority for main tool
+
+# OpenAI
+codex.pkg-path = "codex"
+codex.pkg-group = "ai-agents"
+
+# GitHub/Microsoft
+github-copilot-cli.pkg-path = "github-copilot-cli"
+github-copilot-cli.pkg-group = "ai-agents"
+
+gh-copilot.pkg-path = "gh-copilot"
+gh-copilot.pkg-group = "ai-agents"
+
+# Google
+gemini-cli.pkg-path = "gemini-cli"
+gemini-cli.pkg-group = "ai-agents"
+
+# Open Source / Community
+opencode.pkg-path = "opencode"
+opencode.pkg-group = "ai-agents"
+
+goose-cli.pkg-path = "goose-cli"
+goose-cli.pkg-group = "ai-agents"
+
+crush.pkg-path = "crush"
+crush.pkg-group = "ai-agents"
+
+qwen-code.pkg-path = "qwen-code"
+qwen-code.pkg-group = "ai-agents"
+
+cursor-cli.pkg-path = "cursor-cli"
+cursor-cli.pkg-group = "ai-agents"
+
+# === Runtime Dependencies ===
+nodejs.pkg-path = "nodejs_20"
+nodejs.pkg-group = "runtime"
+
+python3.pkg-path = "python311Full"
+python3.pkg-group = "runtime"
+
+# === Essential Dev Tools ===
+git.pkg-path = "git"
+git.pkg-group = "tools"
+
+gh.pkg-path = "gh"  # GitHub CLI for gh-copilot
+gh.pkg-group = "tools"
+
+jq.pkg-path = "jq"
+jq.pkg-group = "tools"
+
+curl.pkg-path = "curl"
+curl.pkg-group = "tools"
+
+ripgrep.pkg-path = "ripgrep"
+ripgrep.pkg-group = "tools"
+
+bat.pkg-path = "bat"  # Better cat for code viewing
+bat.pkg-group = "tools"
+
+fzf.pkg-path = "fzf"  # Fuzzy finder many tools use
+fzf.pkg-group = "tools"
+
+[vars]
+# Disable telemetry and auto-updates for all tools
+DISABLE_TELEMETRY = "1"
+DISABLE_AUTOUPDATER = "1"
+CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1"
+DISABLE_NON_ESSENTIAL_MODEL_CALLS = "1"
+
+# Cache and config directories
+AI_TOOLS_HOME = "$FLOX_ENV_CACHE/ai-tools"
+AI_TOOLS_CONFIG = "$AI_TOOLS_HOME/config"
+AI_TOOLS_LOGS = "$AI_TOOLS_HOME/logs"
+
+# API keys (users should set these via environment)
+ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY:-}"
+OPENAI_API_KEY = "${OPENAI_API_KEY:-}"
+GOOGLE_API_KEY = "${GOOGLE_API_KEY:-}"
+GITHUB_TOKEN = "${GITHUB_TOKEN:-}"
+
+[hook]
+on_activate = '''
+# Create directories for AI tools
+mkdir -p "$AI_TOOLS_CONFIG"
+mkdir -p "$AI_TOOLS_LOGS"
+
+# Function to check which tools need API keys
+check_api_status() {
+    local has_keys=()
+    local missing_keys=()
+
+    if [ -n "$ANTHROPIC_API_KEY" ]; then
+        has_keys+=("✅ Claude Code (Anthropic)")
+    else
+        missing_keys+=("❌ ANTHROPIC_API_KEY - needed for: claude-code")
+    fi
+
+    if [ -n "$OPENAI_API_KEY" ]; then
+        has_keys+=("✅ Codex (OpenAI)")
+    else
+        missing_keys+=("❌ OPENAI_API_KEY - needed for: codex")
+    fi
+
+    if [ -n "$GOOGLE_API_KEY" ]; then
+        has_keys+=("✅ Gemini CLI (Google)")
+    else
+        missing_keys+=("❌ GOOGLE_API_KEY - needed for: gemini-cli")
+    fi
+
+    if [ -n "$GITHUB_TOKEN" ]; then
+        has_keys+=("✅ GitHub Copilot")
+    else
+        missing_keys+=("❌ GITHUB_TOKEN - needed for: gh-copilot, github-copilot-cli")
+    fi
+
+    echo "🤖 AI Tools Omnibus Environment Activated!"
+    echo ""
+
+    if [ ${#has_keys[@]} -gt 0 ]; then
+        echo "Ready to use:"
+        for tool in "${has_keys[@]}"; do
+            echo "  $tool"
+        done
+    fi
+
+    if [ ${#missing_keys[@]} -gt 0 ]; then
+        echo ""
+        echo "Configure API keys to enable:"
+        for key in "${missing_keys[@]}"; do
+            echo "  $key"
+        done
+        echo ""
+        echo "💡 Tip: Add keys to ~/.config/ai-tools/keys.env and source it"
+    fi
+}
+
+# Create a launcher script
+cat > "$AI_TOOLS_HOME/ai-launcher" << 'EOF'
+#!/usr/bin/env bash
+echo "🚀 Available AI Coding Tools:"
+echo ""
+echo "Proprietary (need API keys):"
+echo "  claude-code       - Anthropic's Claude Code"
+echo "  codex            - OpenAI Codex"
+echo "  gemini-cli       - Google Gemini"
+echo "  gh-copilot       - GitHub Copilot (via gh)"
+echo "  github-copilot-cli - GitHub Copilot standalone"
+echo ""
+echo "Open/Local Options:"
+echo "  opencode         - Open source coding agent"
+echo "  goose-cli        - Extensible local AI agent"
+echo "  crush            - Charm's glamorous AI"
+echo "  qwen-code        - Alibaba's Qwen Code"
+echo "  cursor-cli       - Cursor editor CLI"
+echo ""
+echo "Quick start:"
+echo "  claude-code --help"
+echo "  opencode --help"
+echo "  gemini-cli --help"
+EOF
+chmod +x "$AI_TOOLS_HOME/ai-launcher"
+
+# Check API key status
+check_api_status
+
+echo ""
+echo "Run '$AI_TOOLS_HOME/ai-launcher' for tool list"
+echo "Most tools support --help for options"
+'''
+
+[profile.common]
+# Convenient aliases
+alias ai='$AI_TOOLS_HOME/ai-launcher'
+alias ai-help='$AI_TOOLS_HOME/ai-launcher'
+
+# Short aliases for popular tools
+alias claude='claude-code'
+alias gpt='codex'
+alias gemini='gemini-cli'
+alias copilot='gh-copilot'
+
+# Function to set up API keys file
+setup_ai_keys() {
+    local keys_file="$HOME/.config/ai-tools/keys.env"
+    mkdir -p "$(dirname "$keys_file")"
+
+    if [ ! -f "$keys_file" ]; then
+        cat > "$keys_file" << 'KEYS'
+# AI Tools API Keys
+# Uncomment and add your keys
+
+# export ANTHROPIC_API_KEY="sk-ant-..."
+# export OPENAI_API_KEY="sk-..."
+# export GOOGLE_API_KEY="..."
+# export GITHUB_TOKEN="ghp_..."
+KEYS
+        echo "Created template at: $keys_file"
+        echo "Edit this file and then run: source $keys_file"
+    else
+        echo "Keys file exists at: $keys_file"
+        echo "Run: source $keys_file"
+    fi
+}

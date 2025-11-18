@@ -1,0 +1,53 @@
+# Flox Omnibus Environment using nix-ai-tools flake
+# This version references the packages from the nix-ai-tools flake directly
+
+[options]
+systems = ["x86_64-linux", "aarch64-linux", "x86_64-darwin", "aarch64-darwin"]
+
+# If Flox supports flake inputs (check Flox docs for exact syntax)
+# This is conceptual - you may need to adapt based on Flox's flake support
+[inputs]
+nix-ai-tools.url = "github:numtide/nix-ai-tools"
+
+[install]
+# Reference packages from the flake
+# Note: The exact syntax for referencing flake packages in Flox may vary
+# You might need to use something like:
+# package.pkg-path = "nix-ai-tools#claude-code"
+# or set up the flake as a catalog source
+
+# For standard nixpkgs approach (if these packages are upstreamed):
+claude-code.pkg-path = "@anthropic-ai/claude-code"
+claude-code.pkg-group = "ai-agents"
+
+opencode.pkg-path = "opencode"
+opencode.pkg-group = "ai-agents"
+
+gemini-cli.pkg-path = "gemini-cli"
+gemini-cli.pkg-group = "ai-agents"
+
+# Alternative: Use Nix expression to import from flake
+# [install.from-flake]
+# flake-ref = "github:numtide/nix-ai-tools"
+# packages = ["claude-code", "opencode", "gemini-cli", "qwen-code"]
+
+[vars]
+DISABLE_TELEMETRY = "1"
+DISABLE_AUTOUPDATER = "1"
+AI_TOOLS_CACHE = "$FLOX_ENV_CACHE/ai-tools"
+
+[hook]
+on_activate = '''
+mkdir -p "$AI_TOOLS_CACHE"
+
+# Note about package availability
+echo "🤖 AI Tools Omnibus Environment"
+echo ""
+echo "Note: Some tools may need to be installed from the nix-ai-tools flake."
+echo "If a tool is not found, you can install it directly with:"
+echo "  nix run github:numtide/nix-ai-tools#<tool-name>"
+echo ""
+echo "Available tools (if installed):"
+echo "  claude-code, opencode, gemini-cli, codex, copilot-cli,"
+echo "  crush, goose-cli, qwen-code, and more..."
+'''

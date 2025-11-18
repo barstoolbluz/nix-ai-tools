@@ -1,0 +1,184 @@
+# Omnibus Flox Environment for AI Coding Tools
+# This manifest installs all available AI coding agents and tools
+
+[options]
+systems = ["x86_64-linux", "aarch64-linux", "x86_64-darwin", "aarch64-darwin"]
+
+[install]
+# AI Coding Agents - Main Tools
+amp.pkg-path = "amp"
+amp.pkg-group = "ai-agents"
+
+backlog-md.pkg-path = "backlog-md"
+backlog-md.pkg-group = "ai-agents"
+
+catnip.pkg-path = "catnip"
+catnip.pkg-group = "ai-agents"
+
+claude-code.pkg-path = "claude-code"
+claude-code.pkg-group = "ai-agents"
+claude-code.priority = 1  # Higher priority for main tool
+
+claude-code-router.pkg-path = "claude-code-router"
+claude-code-router.pkg-group = "ai-agents"
+
+claude-desktop.pkg-path = "claude-desktop"
+claude-desktop.pkg-group = "ai-agents"
+claude-desktop.systems = ["x86_64-linux", "x86_64-darwin", "aarch64-darwin"]  # May not work on aarch64-linux
+
+code.pkg-path = "code"
+code.pkg-group = "ai-agents"
+
+coderabbit-cli.pkg-path = "coderabbit-cli"
+coderabbit-cli.pkg-group = "ai-agents"
+
+codex.pkg-path = "codex"
+codex.pkg-group = "ai-agents"
+
+copilot-cli.pkg-path = "copilot-cli"
+copilot-cli.pkg-group = "ai-agents"
+
+crush.pkg-path = "crush"
+crush.pkg-group = "ai-agents"
+
+cursor-agent.pkg-path = "cursor-agent"
+cursor-agent.pkg-group = "ai-agents"
+
+forge.pkg-path = "forge"
+forge.pkg-group = "ai-agents"
+
+gemini-cli.pkg-path = "gemini-cli"
+gemini-cli.pkg-group = "ai-agents"
+
+goose-cli.pkg-path = "goose-cli"
+goose-cli.pkg-group = "ai-agents"
+
+groq-code-cli.pkg-path = "groq-code-cli"
+groq-code-cli.pkg-group = "ai-agents"
+
+nanocoder.pkg-path = "nanocoder"
+nanocoder.pkg-group = "ai-agents"
+
+opencode.pkg-path = "opencode"
+opencode.pkg-group = "ai-agents"
+
+qwen-code.pkg-path = "qwen-code"
+qwen-code.pkg-group = "ai-agents"
+
+# Support tools and dependencies
+nodejs.pkg-path = "nodejs_20"  # Many AI tools need Node.js
+nodejs.pkg-group = "runtime"
+
+python311.pkg-path = "python311Full"  # Python support for some tools
+python311.pkg-group = "runtime"
+
+# Common utilities these tools might need
+git.pkg-path = "git"
+git.pkg-group = "utilities"
+
+jq.pkg-path = "jq"
+jq.pkg-group = "utilities"
+
+curl.pkg-path = "curl"
+curl.pkg-group = "utilities"
+
+ripgrep.pkg-path = "ripgrep"
+ripgrep.pkg-group = "utilities"
+
+[vars]
+# Environment variables for AI tools
+AI_TOOLS_HOME = "$FLOX_ENV_CACHE/ai-tools"
+DISABLE_TELEMETRY = "1"
+DISABLE_AUTOUPDATER = "1"
+
+# API key paths (users should set these)
+ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY:-}"
+OPENAI_API_KEY = "${OPENAI_API_KEY:-}"
+GOOGLE_API_KEY = "${GOOGLE_API_KEY:-}"
+GROQ_API_KEY = "${GROQ_API_KEY:-}"
+GITHUB_TOKEN = "${GITHUB_TOKEN:-}"
+
+[hook]
+on_activate = '''
+# Create directory for AI tools configurations
+mkdir -p "$AI_TOOLS_HOME"
+mkdir -p "$AI_TOOLS_HOME/configs"
+mkdir -p "$AI_TOOLS_HOME/logs"
+
+# Setup function to check API keys
+check_api_keys() {
+    local missing_keys=()
+
+    if [ -z "$ANTHROPIC_API_KEY" ]; then
+        missing_keys+=("ANTHROPIC_API_KEY (for Claude tools)")
+    fi
+    if [ -z "$OPENAI_API_KEY" ]; then
+        missing_keys+=("OPENAI_API_KEY (for Codex, Copilot)")
+    fi
+    if [ -z "$GOOGLE_API_KEY" ]; then
+        missing_keys+=("GOOGLE_API_KEY (for Gemini)")
+    fi
+    if [ -z "$GROQ_API_KEY" ]; then
+        missing_keys+=("GROQ_API_KEY (for Groq)")
+    fi
+
+    if [ ${#missing_keys[@]} -gt 0 ]; then
+        echo "⚠️  Some API keys are not set. You may want to export:"
+        for key in "${missing_keys[@]}"; do
+            echo "   export $key"
+        done
+        echo ""
+        echo "💡 Tip: Store API keys in ~/.config/ai-tools/keys and source it"
+    fi
+}
+
+# Create helper script for listing available tools
+cat > "$AI_TOOLS_HOME/list-tools.sh" << 'EOF'
+#!/usr/bin/env bash
+echo "🤖 Available AI Coding Tools:"
+echo ""
+echo "Main Agents:"
+echo "  amp              - Sourcegraph's Amp coding agent"
+echo "  claude-code      - Anthropic's Claude Code CLI"
+echo "  codex            - OpenAI Codex CLI"
+echo "  copilot-cli      - GitHub Copilot CLI"
+echo "  crush            - Charm's glamorous AI agent"
+echo "  gemini-cli       - Google Gemini CLI"
+echo "  goose-cli        - Block's Goose AI agent"
+echo "  opencode         - SST's OpenCode agent"
+echo "  qwen-code        - Alibaba's Qwen Code CLI"
+echo ""
+echo "Specialized Tools:"
+echo "  backlog-md       - AI-human collaboration via git"
+echo "  catnip           - Weights & Biases agent"
+echo "  claude-code-router - Route Claude to other LLMs"
+echo "  claude-desktop   - Claude Desktop app"
+echo "  code             - Code orchestration tool"
+echo "  coderabbit-cli   - AI code review tool"
+echo "  cursor-agent     - Cursor editor CLI"
+echo "  forge            - Antinomy's AI terminal env"
+echo "  groq-code-cli    - Groq-powered coding CLI"
+echo "  nanocoder        - Community-built local agent"
+echo ""
+echo "Run any tool with --help to see its options"
+EOF
+chmod +x "$AI_TOOLS_HOME/list-tools.sh"
+
+# Check API keys on activation
+check_api_keys
+
+# Show quick start message
+echo "🚀 AI Tools Omnibus Environment Activated!"
+echo "   Run '$AI_TOOLS_HOME/list-tools.sh' to see all available tools"
+echo "   Most tools require API keys to be set (see warnings above)"
+'''
+
+[profile.common]
+# Aliases for common tools
+alias list-ai-tools='$AI_TOOLS_HOME/list-tools.sh'
+alias ai-help='echo "Available AI tools: amp, backlog-md, catnip, claude-code, codex, copilot-cli, crush, gemini-cli, goose-cli, opencode, qwen-code, and more. Use --help with any tool for options."'
+
+# Quick launchers for popular tools
+alias claude='claude-code'
+alias gpt='codex'
+alias gemini='gemini-cli'
