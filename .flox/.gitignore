@@ -1,5 +1,5 @@
-run/
-cache/
-lib/
-log/
-!env/
+# Ignore everything except our Flox configuration
+/*
+!/.gitignore
+!/pkgs/
+!/env/

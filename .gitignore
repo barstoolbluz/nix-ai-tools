@@ -1,0 +1,8 @@
+# Nix build results
+result
+result-*
+
+# Don't track packages directory - we reference upstream
+# The .flox/pkgs/*.nix files reference ../../packages/* which exists locally
+# but we sync from upstream, not modify ourselves
+packages/
