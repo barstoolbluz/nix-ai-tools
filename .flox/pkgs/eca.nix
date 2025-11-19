@@ -1,6 +1,7 @@
-{ callPackage, lib }:
+{ callPackage, fetchFromGitHub, lib }:
 let
-  pkg = callPackage ../../packages/eca/package.nix { };
+  upstream = import ../lib/fetch-upstream.nix { inherit fetchFromGitHub; };
+  pkg = callPackage "${upstream}/packages/eca/package.nix" { };
 in
 pkg.overrideAttrs (oldAttrs: {
   meta = oldAttrs.meta // {

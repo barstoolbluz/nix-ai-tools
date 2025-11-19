@@ -1,2 +1,5 @@
-{ callPackage }:
-callPackage ../../packages/catnip/package.nix { }
+{ callPackage, fetchFromGitHub }:
+let
+  upstream = import ../lib/fetch-upstream.nix { inherit fetchFromGitHub; };
+in
+callPackage "${upstream}/packages/catnip/package.nix" { }

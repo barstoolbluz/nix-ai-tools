@@ -1,7 +1,9 @@
-{ pkgs, callPackage }:
+{ pkgs, callPackage, fetchFromGitHub }:
 let
-  # Get claude-code from the flake or use the one from Flox catalog
-  claude-code = callPackage ../../packages/claude-code/package.nix { };
+  upstream = import ../lib/fetch-upstream.nix { inherit fetchFromGitHub; };
+
+  # Get claude-code from upstream
+  claude-code = callPackage "${upstream}/packages/claude-code/package.nix" { };
 
   # Bundle all the tools Claude needs into a single environment
   claudeTools = pkgs.buildEnv {
@@ -43,14 +45,14 @@ pkgs.runCommand "claudebox"
     mkdir -p $out/bin $out/share/claudebox $out/libexec/claudebox
 
     # Install helper scripts
-    cp ${../../packages/claudebox/claudebox.sh} $out/bin/claudebox
+    cp ${upstream}/packages/claudebox/claudebox.sh $out/bin/claudebox
     chmod +x $out/bin/claudebox
 
     # Install command-viewer script
-    cp ${../../packages/claudebox/command-viewer.js} $out/libexec/claudebox/command-viewer.js
+    cp ${upstream}/packages/claudebox/command-viewer.js $out/libexec/claudebox/command-viewer.js
 
     # Install wrapper script
-    cp ${../../packages/claudebox/command-viewer-wrapper.sh} $out/libexec/claudebox/command-viewer-wrapper.sh
+    cp ${upstream}/packages/claudebox/command-viewer-wrapper.sh $out/libexec/claudebox/command-viewer-wrapper.sh
     chmod +x $out/libexec/claudebox/command-viewer-wrapper.sh
 
     # Create the real command-viewer executable
@@ -66,7 +68,7 @@ pkgs.runCommand "claudebox"
 
     # Create claude wrapper that references the original
     makeWrapper ${claude-code}/bin/claude $out/libexec/claudebox/claude \
-      --set NODE_OPTIONS "--require=${../../packages/claudebox/command-logger.js}" \
+      --set NODE_OPTIONS "--require=${upstream}/packages/claudebox/command-logger.js" \
       --inherit-argv0
 
     # Wrap claudebox start script
