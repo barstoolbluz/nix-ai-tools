@@ -5,6 +5,7 @@
   autoPatchelfHook,
   gcc-unwrapped,
   makeWrapper,
+  ripgrep,
 }:
 let
   version = "0.26.2";
@@ -34,40 +35,19 @@ let
 
   # Source hashes for each platform
   sources = {
-    "x86_64-linux" = {
-      droid = "sha256-jxRpCLi6pNPk7sVdF4fQlkr2qfR5h3Nh+FglpN8FGPY=";
-      rg = "sha256-xILKlqc+d5rOUqE0+/W/E+Qtu1hMqKUlIqGOYQs7+qg=";
-    };
-    "aarch64-linux" = {
-      droid = "sha256-dSPTQxYhv2SjuKAXZsDHXx9q28T2HdDGfkPGMpGsXJo=";
-      rg = "sha256-xm3Se8x35MEoSULcSfBJDQd7hKeywCnUj5T2Ks6sJLI=";
-    };
-    "x86_64-darwin" = {
-      droid = "sha256-c50V1Ll/lfBYZKe1Qp12x6EzVEcX4tWSnclvl7vBnF0=";
-      rg = "sha256-bkoPyeA+/spqoOFUO6uytDNzhZRnn3cdWkcfGH5w7qY=";
-    };
-    "aarch64-darwin" = {
-      droid = "sha256-mA98pAMB0RnJw9fWI9PdHSO6Jok4hJVuoXdZj7DL5YQ=";
-      rg = "sha256-PU+YdZZvjf5J6d5MdqKtzj+5i7mEHs/f9xO1p9h9S/Q=";
-    };
+    "x86_64-linux" = "sha256-jxRpCLi6pNPk7sVdF4fQlkr2qfR5h3Nh+FglpN8FGPY=";
+    "aarch64-linux" = "sha256-dSPTQxYhv2SjuKAXZsDHXx9q28T2HdDGfkPGMpGsXJo=";
+    "x86_64-darwin" = "sha256-c50V1Ll/lfBYZKe1Qp12x6EzVEcX4tWSnclvl7vBnF0=";
+    "aarch64-darwin" = "sha256-mA98pAMB0RnJw9fWI9PdHSO6Jok4hJVuoXdZj7DL5YQ=";
   };
 
-  # Get hashes for current platform
-  currentHashes = sources.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
-
-  # Construct download URLs
+  # Construct download URL
   baseUrl = "https://downloads.factory.ai";
   droidUrl = "${baseUrl}/factory-cli/releases/${version}/${currentPlatform.platform}/${currentPlatform.arch}/droid";
-  rgUrl = "${baseUrl}/ripgrep/${currentPlatform.platform}/${currentPlatform.arch}/rg";
 
   droidSrc = fetchurl {
     url = droidUrl;
-    hash = currentHashes.droid;
-  };
-
-  rgSrc = fetchurl {
-    url = rgUrl;
-    hash = currentHashes.rg;
+    hash = sources.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
   };
 in
 stdenv.mkDerivation {
@@ -89,17 +69,14 @@ stdenv.mkDerivation {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/bin $out/lib/factory
+    mkdir -p $out/bin
 
     # Install droid binary
     install -m755 ${droidSrc} $out/bin/droid
 
-    # Install ripgrep
-    install -m755 ${rgSrc} $out/lib/factory/rg
-
-    # Wrap droid to include ripgrep in PATH
+    # Wrap droid to include ripgrep from nixpkgs in PATH
     wrapProgram $out/bin/droid \
-      --prefix PATH : $out/lib/factory
+      --prefix PATH : ${lib.makeBinPath [ ripgrep ]}
 
     runHook postInstall
   '';
