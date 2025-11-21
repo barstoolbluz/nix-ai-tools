@@ -85,7 +85,7 @@ let
     x86_64-linux = "sha256-LCZlQrhng7xRUvlJ82qcSod3KpTLUwWwd7kbhqgoieg=";
     aarch64-linux = "sha256-sAwGn/DU8118fEdysf+KY4qOz9IilAsFZGjOKxLG2xM=";
     x86_64-darwin = "sha256-0000000000000000000000000000000000000000000="; # TODO
-    aarch64-darwin = "sha256-0000000000000000000000000000000000000000000="; # TODO
+    aarch64-darwin = "sha256-TxqGp0gT760GaFXTDeTrYd/FC7XzirAOzOlE+8JnU3k=";
   };
 
   node_modules = fetchOpencodeNodeModules {
