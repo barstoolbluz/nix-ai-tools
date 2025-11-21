@@ -21,7 +21,7 @@ let
     };
     "x86_64-darwin" = {
       url = "https://github.com/block/goose/releases/download/v${version}/goose-x86_64-apple-darwin.tar.bz2";
-      hash = "sha256-omCKa4Z5RghfqSN8HPrT+vz8S018WaeBSZ6JCT1kDqc=";
+      hash = "sha256-pw5kPQmJnkmBp1l8TUv8/PrT+hx8I6lfCEZ5hmuKYKI=";
     };
     "aarch64-darwin" = {
       url = "https://github.com/block/goose/releases/download/v${version}/goose-aarch64-apple-darwin.tar.bz2";
