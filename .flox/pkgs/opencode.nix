@@ -80,9 +80,17 @@ let
     hash = "sha256-lG6OIi1yT9mqdzmMguUQ5xdIuuEoByVL2GPOVyIny0c=";
   };
 
+  # Platform-specific hashes for node_modules (due to native dependencies)
+  nodeModulesHashes = {
+    x86_64-linux = "sha256-LCZlQrhng7xRUvlJ82qcSod3KpTLUwWwd7kbhqgoieg=";
+    aarch64-linux = "sha256-sAwGn/DU8118fEdysf+KY4qOz9IilAsFZGjOKxLG2xM=";
+    x86_64-darwin = "sha256-0000000000000000000000000000000000000000000="; # TODO
+    aarch64-darwin = "sha256-0000000000000000000000000000000000000000000="; # TODO
+  };
+
   node_modules = fetchOpencodeNodeModules {
     inherit version src;
-    hash = "sha256-LCZlQrhng7xRUvlJ82qcSod3KpTLUwWwd7kbhqgoieg=";
+    hash = nodeModulesHashes.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
   };
 
 in
