@@ -17,7 +17,7 @@ let
     };
     "aarch64-linux" = {
       url = "https://github.com/block/goose/releases/download/v${version}/goose-aarch64-unknown-linux-gnu.tar.bz2";
-      hash = "sha256-qGcGWxJXg8+KACznqzE6riqJK8MtBv2RJUXlx0Oy7yY=";
+      hash = "sha256-Ju+yQ8flRSWR/QYtwyuJKq46MavnLACKz4NXElsGZ6g=";
     };
     "x86_64-darwin" = {
       url = "https://github.com/block/goose/releases/download/v${version}/goose-x86_64-apple-darwin.tar.bz2";
