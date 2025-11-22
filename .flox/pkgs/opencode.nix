@@ -9,6 +9,7 @@
   ripgrep,
   writableTmpDirAsHomeHook,
   models-dev,
+  autoPatchelfHook,
 }:
 
 let
@@ -94,7 +95,7 @@ let
   };
 
 in
-stdenvNoCC.mkDerivation {
+stdenv.mkDerivation {
   pname = "opencode";
   inherit version src;
 
@@ -102,6 +103,12 @@ stdenvNoCC.mkDerivation {
     bun
     makeBinaryWrapper
     models-dev
+  ] ++ lib.optionals stdenv.isLinux [
+    autoPatchelfHook
+  ];
+
+  buildInputs = lib.optionals stdenv.isLinux [
+    stdenv.cc.cc.lib
   ];
 
   # Inline patches as strings
@@ -170,6 +177,12 @@ stdenvNoCC.mkDerivation {
     ln -s $(pwd)/../../packages/script ./node_modules/@opencode-ai/script
     ln -s $(pwd)/../../packages/sdk/js ./node_modules/@opencode-ai/sdk
     ln -s $(pwd)/../../packages/plugin ./node_modules/@opencode-ai/plugin
+
+    ${lib.optionalString stdenv.isLinux ''
+      # Patch native modules for Linux
+      echo "Patching native modules with autoPatchelf..."
+      autoPatchelf ./node_modules
+    ''}
 
     # Bundle the application with version defines - inline the bundle script
     cat > ./bundle.ts << 'BUNDLE_EOF'
