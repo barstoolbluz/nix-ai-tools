@@ -6,7 +6,7 @@ This repository provides [Flox](https://flox.dev)-compatible Nix expressions tha
 
 ## What's Here
 
-The `.flox/pkgs/` directory contains build recipes for 19 AI coding tools:
+The `.flox/pkgs/` directory contains build recipes for 20 AI coding tools:
 
 | Package | Description |
 |---------|-------------|
@@ -19,6 +19,7 @@ The `.flox/pkgs/` directory contains build recipes for 19 AI coding tools:
 | `coderabbit-cli` | AI-powered code review CLI |
 | `codex` | OpenAI Codex CLI coding agent |
 | `codex-acp` | ACP-compatible agent powered by Codex |
+| `crush` | The glamourous AI coding agent for your favourite terminal |
 | `cursor-agent` | CLI tool for Cursor AI |
 | `droid` | Factory AI's development agent |
 | `eca` | Editor Code Assistant for AI pair programming |
