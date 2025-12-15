@@ -25,15 +25,15 @@ let
     };
     "aarch64-linux" = {
       url = "https://go.dev/dl/go${version}.linux-arm64.tar.gz";
-      hash = "sha256-sAtpSQPRJsWIw3jnLTVFVJlNT5gmW6P3qWTJ+vo/47k=";
+      hash = "sha256-sAtpSQPRJsWIw3jnLTVFVJk105gmNbo/epZMn6I/47k=";
     };
     "x86_64-darwin" = {
       url = "https://go.dev/dl/go${version}.darwin-amd64.tar.gz";
-      hash = "sha256-tp1Rvznm1TgZSzHhXgKWROhGZ6XOMj1cDF/mLBKp9WY=";
+      hash = "sha256-tp1RvOWZ5TgalM4VJjrmROyEZnpc4j1Y3C5j4sEqn1Y=";
     };
     "aarch64-darwin" = {
       url = "https://go.dev/dl/go${version}.darwin-arm64.tar.gz";
-      hash = "sha256-vtiOvgJOPTteCE0dEQf4A/xquO4dDrtp6llZe9tYAddM=";
+      hash = "sha256-vtiOvgJOPTteCE0dEQf4A/xquO4dDrtp6llZe9tYAdM=";
     };
   };
 
