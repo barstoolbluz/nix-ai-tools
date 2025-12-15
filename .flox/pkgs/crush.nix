@@ -3,21 +3,31 @@
   fetchurl,
   fetchFromGitHub,
   buildGoModule,
+  callPackage,
   installShellFiles,
   lib,
 }:
-buildGoModule rec {
+let
+  # Use our custom Go 1.25.5
+  go_1_25_5 = callPackage ./go_1_25_5.nix {};
+
+  # Override buildGoModule to use our Go 1.25.5
+  buildGoModuleWithGo1255 = buildGoModule.override {
+    go = go_1_25_5;
+  };
+in
+buildGoModuleWithGo1255 rec {
   pname = "crush";
-  version = "0.21.0";
+  version = "0.24.0";
 
   src = fetchFromGitHub {
     owner = "charmbracelet";
     repo = "crush";
     rev = "v${version}";
-    hash = "sha256-bkzz78IVfpl85P04GLHSQSIreyhD9tsv88bUS2ax/lA=";
+    hash = "sha256-UcaWSMBVjIaGG9AhdJtzHCWkkVpzmhN9PPsmeDCxvi4=";
   };
 
-  vendorHash = "sha256-Y3IZLqUK9+G3MDRcQp8BqnpOROCMDZlsx52cHAenl8k=";
+  vendorHash = lib.fakeHash;
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -42,7 +52,7 @@ buildGoModule rec {
   doCheck = false;
 
   meta = with lib; {
-    description = "The glamourous AI coding agent for your favourite terminal (v0.21.0 - latest buildable with Go 1.25.4)";
+    description = "The glamourous AI coding agent for your favourite terminal";
     homepage = "https://github.com/charmbracelet/crush";
     license = licenses.mit;
     maintainers = with maintainers; [ zimbatm ];
