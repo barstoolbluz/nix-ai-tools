@@ -1,6 +1,6 @@
 { pkgs, callPackage, fetchFromGitHub }:
 let
-  upstream = import ../lib/fetch-upstream.nix { inherit fetchFromGitHub; };
+  upstream = import ./fetch-upstream.nix { inherit fetchFromGitHub; };
 
   # Get claude-code from upstream
   claude-code = callPackage "${upstream}/packages/claude-code/package.nix" { };
