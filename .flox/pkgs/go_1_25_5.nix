@@ -25,18 +25,15 @@ let
     };
     "aarch64-linux" = {
       url = "https://go.dev/dl/go${version}.linux-arm64.tar.gz";
-      # Would need to fetch this hash if supporting ARM
-      hash = "";
+      hash = "sha256-sAtpSQPRJsWIw3jnLTVFVJlNT5gmW6P3qWTJ+vo/47k=";
     };
     "x86_64-darwin" = {
       url = "https://go.dev/dl/go${version}.darwin-amd64.tar.gz";
-      # Would need to fetch this hash if supporting macOS
-      hash = "";
+      hash = "sha256-tp1Rvznm1TgZSzHhXgKWROhGZ6XOMj1cDF/mLBKp9WY=";
     };
     "aarch64-darwin" = {
       url = "https://go.dev/dl/go${version}.darwin-arm64.tar.gz";
-      # Would need to fetch this hash if supporting macOS ARM
-      hash = "";
+      hash = "sha256-vtiOvgJOPTteCE0dEQf4A/xquO4dDrtp6llZe9tYAddM=";
     };
   };
 
