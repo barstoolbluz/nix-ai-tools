@@ -27,7 +27,7 @@ buildGoModuleWithGo1255 rec {
     hash = "sha256-UcaWSMBVjIaGG9AhdJtzHCWkkVpzmhN9PPsmeDCxvi4=";
   };
 
-  vendorHash = lib.fakeHash;
+  vendorHash = "sha256-eKiDfdZqpB2+j4S3KcOswnFum3yPSdPzxp1A80DnxQg=";
 
   nativeBuildInputs = [ installShellFiles ];
 

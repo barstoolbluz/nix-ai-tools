@@ -67,8 +67,7 @@ stdenv.mkDerivation {
     # Ensure binaries are executable
     chmod +x $out/bin/*
 
-    # Create necessary symlinks
-    ln -s $out/bin/go $out/bin/gofmt
+    # gofmt already exists in the extracted tarball, no need to symlink
 
     runHook postInstall
   '';
@@ -87,7 +86,9 @@ stdenv.mkDerivation {
     inherit version;
     CGO_ENABLED = 1;
     GOOS = platform.parsed.kernel.name;
-    GOARCH = platform.parsed.cpu.name;
+    GOARCH = if platform.parsed.cpu.name == "x86_64" then "amd64"
+            else if platform.parsed.cpu.name == "aarch64" then "arm64"
+            else platform.parsed.cpu.name;
   };
 
   meta = with lib; {
