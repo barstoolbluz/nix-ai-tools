@@ -1,6 +1,8 @@
 {
-  buildGoModule,
+  stdenv,
+  fetchurl,
   fetchFromGitHub,
+  buildGoModule,
   installShellFiles,
   lib,
 }:
@@ -40,7 +42,7 @@ buildGoModule rec {
   doCheck = false;
 
   meta = with lib; {
-    description = "The glamourous AI coding agent for your favourite terminal";
+    description = "The glamourous AI coding agent for your favourite terminal (v0.21.0 - latest buildable with Go 1.25.4)";
     homepage = "https://github.com/charmbracelet/crush";
     license = licenses.mit;
     maintainers = with maintainers; [ zimbatm ];
