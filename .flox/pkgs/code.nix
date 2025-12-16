@@ -1,5 +1,3 @@
-{ callPackage, fetchFromGitHub }:
-let
-  upstream = import ./fetch-upstream.nix { inherit fetchFromGitHub; };
-in
-callPackage "${upstream}/packages/code/package.nix" { }
+{ callPackage }:
+# Using local package definition with Cargo.toml patch to fix version display
+callPackage ./code-package.nix { }
