@@ -31,10 +31,18 @@ The `.flox/pkgs/` directory contains build recipes for 20 AI coding tools:
 | `opencode` | Terminal-based AI coding agent |
 | `spec-kit` | GitHub Spec Kit for Spec-Driven Development |
 
+## Branch Structure
+
+This repository maintains three branches for different purposes:
+
+- **`main`** - Current stable versions (e.g., crush v0.22.0)
+- **`nightly`** - Bleeding-edge versions requiring newer toolchains (e.g., crush v0.25.0 with Go 1.25.5)
+- **`historical`** - Older versions maintained for backward compatibility (e.g., crush v0.21.0)
+
 ## Usage with Flox
 
 ```bash
-# Build a package
+# Build a package from current branch
 flox build cursor-agent
 
 # Publish to your catalog
@@ -42,6 +50,10 @@ flox publish cursor-agent
 
 # Or publish to an organization
 flox publish -o myorg cursor-agent
+
+# To use packages from a specific branch
+git checkout nightly  # or historical
+flox build <package>
 ```
 
 ## How It Works
