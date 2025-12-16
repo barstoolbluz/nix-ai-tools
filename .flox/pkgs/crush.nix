@@ -6,23 +6,23 @@
 }:
 buildGoModule rec {
   pname = "crush";
-  version = "0.21.0";
+  version = "0.22.0";
 
   src = fetchFromGitHub {
     owner = "charmbracelet";
     repo = "crush";
     rev = "v${version}";
-    hash = "sha256-bkzz78IVfpl85P04GLHSQSIreyhD9tsv88bUS2ax/lA=";
+    hash = "sha256-kBf68RB/iV5TGR4dUWe1nIgM9Y/hfYmkrjxgZkie4So=";
   };
 
-  vendorHash = "sha256-Y3IZLqUK9+G3MDRcQp8BqnpOROCMDZlsx52cHAenl8k=";
+  vendorHash = "sha256-TBpZ9gHpVvM+b94am49DvrevirxuoFmDr0Q6dwoY2Wk=";
 
   nativeBuildInputs = [ installShellFiles ];
 
   ldflags = [
     "-s"
     "-w"
-    "-X=main.Version=${version}"
+    "-X=github.com/charmbracelet/crush/internal/version.Version=${version}"
   ];
 
   postInstall = ''
