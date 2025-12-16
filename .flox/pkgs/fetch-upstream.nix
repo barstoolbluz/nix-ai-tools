@@ -4,6 +4,6 @@
 fetchFromGitHub {
   owner = "numtide";
   repo = "nix-ai-tools";
-  rev = "9947f0f8bd78775953478b6272180c5df5364acf";
+  rev = "9947f0f8bd78775953478b6272180c5df5364acf"; # Historical: code v0.6.5, nanocoder v1.18.0
   hash = "sha256-YkDfnuIfOig6eSIA59BaQ8Xl/FEMkOBLBGhw2Z9ihlA=";
 }
