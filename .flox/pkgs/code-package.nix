@@ -58,17 +58,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   doCheck = false;
 
-  postInstall = lib.optionalString installShellCompletions ''
-    installShellCompletion --cmd code \
-      --bash <($out/bin/code completions bash) \
-      --fish <($out/bin/code completions fish) \
-      --zsh <($out/bin/code completions zsh)
-
-    installShellCompletion --cmd code-tui \
-      --bash <($out/bin/code-tui completions bash) \
-      --fish <($out/bin/code-tui completions fish) \
-      --zsh <($out/bin/code-tui completions zsh)
-  '';
+  # Shell completions are not supported by this version of code
+  postInstall = "";
 
   passthru = {
     updateScript = "versions-nix --update";
