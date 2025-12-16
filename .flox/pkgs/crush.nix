@@ -34,7 +34,7 @@ buildGoModuleWithGo1255 rec {
   ldflags = [
     "-s"
     "-w"
-    "-X=main.Version=${version}"
+    "-X=github.com/charmbracelet/crush/internal/version.Version=${version}"
   ];
 
   postInstall = ''
