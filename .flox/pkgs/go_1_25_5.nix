@@ -33,7 +33,7 @@ let
     };
     "aarch64-darwin" = {
       url = "https://go.dev/dl/go${version}.darwin-arm64.tar.gz";
-      hash = "sha256-vtiOvgJOPTteCE0dEQf4A/xquO4dDrtp6llZe9tYAdM=";
+      hash = "sha256-vtjr6CTj07J+hHHRMH+AP8arjh0Ot6SuGWl5vZuAHdM=";
     };
   };
 
