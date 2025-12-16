@@ -39,22 +39,21 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   buildInputs = [ openssl ];
 
+  postPatch = ''
+    # Fix version in workspace Cargo.toml (upstream has 0.0.0 in [workspace.package])
+    echo "Patching workspace version in Cargo.toml..."
+
+    # The version is in [workspace.package] section
+    sed -i '/\[workspace.package\]/,/\[/ s/version = "0.0.0"/version = "${finalAttrs.version}"/' Cargo.toml
+
+    echo "Verifying patch was applied:"
+    grep -A2 "\[workspace.package\]" Cargo.toml || true
+  '';
+
   preBuild = ''
     # Remove LTO to speed up builds
     substituteInPlace Cargo.toml \
       --replace-fail 'lto = "fat"' 'lto = false'
-
-    # Fix version in Cargo.toml (upstream has 0.0.0)
-    substituteInPlace Cargo.toml \
-      --replace-fail 'version = "0.0.0"' 'version = "${finalAttrs.version}"'
-
-    # Also check if clap is using env!("CARGO_PKG_VERSION") and needs updating
-    for file in src/main.rs src/bin/code-tui.rs src/bin/code-exec.rs; do
-      if [ -f "$file" ]; then
-        echo "Checking $file for version references..."
-        grep -l "version" "$file" || true
-      fi
-    done
   '';
 
   doCheck = false;
