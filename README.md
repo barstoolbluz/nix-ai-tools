@@ -35,9 +35,9 @@ The `.flox/pkgs/` directory contains build recipes for 20 AI coding tools:
 
 This repository maintains three branches for different purposes:
 
-- **`main`** - Current stable versions (e.g., crush v0.22.0)
+- **`main`** - Current stable versions (e.g., crush v0.22.0, code v0.6.6, nanocoder v1.19.1)
 - **`nightly`** - Bleeding-edge versions requiring newer toolchains (e.g., crush v0.25.0 with Go 1.25.5)
-- **`historical`** - Older versions maintained for backward compatibility (e.g., crush v0.21.0)
+- **`historical`** - Older versions maintained for backward compatibility (e.g., crush v0.21.0, code v0.6.5, nanocoder v1.18.0)
 
 ## Usage with Flox
 
