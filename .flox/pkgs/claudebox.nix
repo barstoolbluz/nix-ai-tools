@@ -1,74 +1,30 @@
 { pkgs, callPackage, fetchFromGitHub }:
 let
-  upstream = import ./fetch-upstream.nix { inherit fetchFromGitHub; };
-
-  # Get claude-code from upstream
-  claude-code = callPackage "${upstream}/packages/claude-code/package.nix" { };
-
-  # Bundle essential tools
-  claudeTools = pkgs.buildEnv {
-    name = "claude-tools";
-    paths = with pkgs; [
-      git
-      ripgrep
-      fd
-      coreutils
-      gnugrep
-      gnused
-      gawk
-      findutils
-      which
-      tree
-      curl
-      wget
-      jq
-      less
-      zsh
-      nix
-    ];
+  # For claudebox, we need to use the old upstream that has it
+  # Current upstream removed claudebox
+  oldUpstream = fetchFromGitHub {
+    owner = "numtide";
+    repo = "nix-ai-tools";
+    rev = "9947f0f8bd78775953478b6272180c5df5364acf";
+    hash = "sha256-YkDfnuIfOig6eSIA59BaQ8Xl/FEMkOBLBGhw2Z9ihlA=";
   };
 in
-pkgs.stdenv.mkDerivation rec {
-  pname = "claudebox";
-  version = "0.1.0";
-
-  src = ./claudebox-files;
-
-  dontBuild = true;
-
-  nativeBuildInputs = [ pkgs.makeWrapper ];
-
-  meta = with pkgs.lib; {
-    description = "Sandboxed environment for Claude Code";
-    homepage = "https://github.com/barstoolbluz/nix-ai-tools";
-    license = licenses.mit;
-    sourceProvenance = with sourceTypes; [ fromSource ];
-    platforms = platforms.linux;
-    mainProgram = "claudebox";
+# Wrap the upstream claudebox with version info
+let
+  claudeboxBase = callPackage "${oldUpstream}/packages/claudebox/default.nix" {
+    perSystem = {
+      config = {};
+      self' = {};
+    };
   };
-
-  installPhase = ''
-    runHook preInstall
-
-    mkdir -p $out/bin
-
-    # Install the wrapper script
-    cp $src/claudebox.sh $out/bin/claudebox
-    chmod +x $out/bin/claudebox
-
-    # Patch shebang
-    patchShebangs $out/bin/claudebox
-
-    # Wrap with required tools
-    wrapProgram $out/bin/claudebox \
-      --prefix PATH : ${
-        pkgs.lib.makeBinPath [
-          claude-code
-          pkgs.bashInteractive
-          claudeTools
-        ]
-      }
-
-    runHook postInstall
-  '';
-}
+in
+if builtins.isAttrs claudeboxBase then
+  claudeboxBase // {
+    version = "0.1.0";
+    meta = claudeboxBase.meta // {
+      # Ensure version shows up
+      version = "0.1.0";
+    };
+  }
+else
+  claudeboxBase
