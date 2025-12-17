@@ -1,30 +1,18 @@
 { pkgs, callPackage, fetchFromGitHub }:
 let
-  # For claudebox, we need to use the old upstream that has it
-  # Current upstream removed claudebox
-  oldUpstream = fetchFromGitHub {
-    owner = "numtide";
-    repo = "nix-ai-tools";
-    rev = "9947f0f8bd78775953478b6272180c5df5364acf";
-    hash = "sha256-YkDfnuIfOig6eSIA59BaQ8Xl/FEMkOBLBGhw2Z9ihlA=";
-  };
-in
-# Wrap the upstream claudebox with version info
-let
-  claudeboxBase = callPackage "${oldUpstream}/packages/claudebox/default.nix" {
+  # Get the current upstream (now llm-agents.nix)
+  upstream = import ./fetch-upstream.nix { inherit fetchFromGitHub; };
+
+  # claudebox is in the current upstream at packages/claudebox/default.nix
+  claudebox = callPackage "${upstream}/packages/claudebox/default.nix" {
     perSystem = {
-      config = {};
-      self' = {};
+      self = {
+        # claude-code is also in the same upstream
+        claude-code = callPackage "${upstream}/packages/claude-code/package.nix" { };
+      };
     };
   };
 in
-if builtins.isAttrs claudeboxBase then
-  claudeboxBase // {
-    version = "0.1.0";
-    meta = claudeboxBase.meta // {
-      # Ensure version shows up
-      version = "0.1.0";
-    };
-  }
-else
-  claudeboxBase
+# The upstream uses runCommand which doesn't have version
+# So we'll just return it as-is since runCommand packages don't support version
+claudebox
