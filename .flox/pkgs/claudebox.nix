@@ -5,11 +5,10 @@ let
   # Get claude-code from upstream
   claude-code = callPackage "${upstream}/packages/claude-code/package.nix" { };
 
-  # Bundle all the tools Claude needs into a single environment
+  # Bundle essential tools
   claudeTools = pkgs.buildEnv {
     name = "claude-tools";
     paths = with pkgs; [
-      # Essential tools Claude commonly uses
       git
       ripgrep
       fd
@@ -24,62 +23,52 @@ let
       wget
       jq
       less
-      # Shells
       zsh
-      # Nix is essential for nix run
       nix
     ];
   };
 in
-pkgs.runCommand "claudebox"
-  {
-    buildInputs = [ pkgs.makeWrapper ];
-    meta = with pkgs.lib; {
-      description = "Sandboxed environment for Claude Code";
-      homepage = "https://github.com/numtide/nix-ai-tools/tree/main/packages/claudebox";
-      sourceProvenance = with sourceTypes; [ fromSource ];
-      platforms = platforms.linux;
-    };
-  }
-  ''
-    mkdir -p $out/bin $out/share/claudebox $out/libexec/claudebox
+pkgs.stdenv.mkDerivation rec {
+  pname = "claudebox";
+  version = "0.1.0";
 
-    # Install helper scripts
-    cp ${upstream}/packages/claudebox/claudebox.sh $out/bin/claudebox
+  src = ./claudebox-files;
+
+  dontBuild = true;
+
+  nativeBuildInputs = [ pkgs.makeWrapper ];
+
+  meta = with pkgs.lib; {
+    description = "Sandboxed environment for Claude Code";
+    homepage = "https://github.com/barstoolbluz/nix-ai-tools";
+    license = licenses.mit;
+    sourceProvenance = with sourceTypes; [ fromSource ];
+    platforms = platforms.linux;
+    mainProgram = "claudebox";
+  };
+
+  installPhase = ''
+    runHook preInstall
+
+    mkdir -p $out/bin
+
+    # Install the wrapper script
+    cp $src/claudebox.sh $out/bin/claudebox
     chmod +x $out/bin/claudebox
-
-    # Install command-viewer script
-    cp ${upstream}/packages/claudebox/command-viewer.js $out/libexec/claudebox/command-viewer.js
-
-    # Install wrapper script
-    cp ${upstream}/packages/claudebox/command-viewer-wrapper.sh $out/libexec/claudebox/command-viewer-wrapper.sh
-    chmod +x $out/libexec/claudebox/command-viewer-wrapper.sh
-
-    # Create the real command-viewer executable
-    makeWrapper ${pkgs.nodejs}/bin/node $out/libexec/claudebox/command-viewer-real \
-      --add-flags $out/libexec/claudebox/command-viewer.js
-
-    # Create wrapper that logs the command-viewer execution
-    makeWrapper $out/libexec/claudebox/command-viewer-wrapper.sh $out/libexec/claudebox/command-viewer \
-      --set COMMAND_VIEWER_REAL $out/libexec/claudebox/command-viewer-real
 
     # Patch shebang
     patchShebangs $out/bin/claudebox
 
-    # Create claude wrapper that references the original
-    makeWrapper ${claude-code}/bin/claude $out/libexec/claudebox/claude \
-      --set NODE_OPTIONS "--require=${upstream}/packages/claudebox/command-logger.js" \
-      --inherit-argv0
-
-    # Wrap claudebox start script
+    # Wrap with required tools
     wrapProgram $out/bin/claudebox \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
+          claude-code
           pkgs.bashInteractive
-          pkgs.bubblewrap
-          pkgs.tmux
           claudeTools
         ]
-      } \
-      --prefix PATH : $out/libexec/claudebox
-  ''
+      }
+
+    runHook postInstall
+  '';
+}
