@@ -38,7 +38,7 @@ let
     "x86_64-linux" = "sha256-uY6H7fckgEDoHFLr9CljXSH8vgsej4u3xN0cW8AxqIo=";
     "aarch64-linux" = "sha256-dSPTQxYhv2SjuKAXZsDHXx9q28T2HdDGfkPGMpGsXJo=";
     "x86_64-darwin" = "sha256-c50V1Ll/lfBYZKe1Qp12x6EzVEcX4tWSnclvl7vBnF0=";
-    "aarch64-darwin" = "sha256-mA98pAMB0RnJw9fWI9PdHSO6Jok4hJVuoXdZj7DL5YQ=";
+    "aarch64-darwin" = "sha256-OMrOKM39dNHpDH/tpf4OrwP4JQ6PVlHF4Bizt1cfDnQ=";
   };
 
   # Construct download URL
