@@ -6,7 +6,7 @@ This repository provides [Flox](https://flox.dev)-compatible Nix expressions tha
 
 ## What's Here
 
-The `.flox/pkgs/` directory contains build recipes for 20 AI coding tools:
+The `.flox/pkgs/` directory contains build recipes for 22 AI coding tools:
 
 | Package | Description |
 |---------|-------------|
@@ -29,6 +29,8 @@ The `.flox/pkgs/` directory contains build recipes for 20 AI coding tools:
 | `kilocode-cli` | Open-source AI coding agent |
 | `nanocoder` | Local-first coding agent |
 | `opencode` | Terminal-based AI coding agent |
+| `openskills` | Universal skills loader for AI coding agents |
+| `openspec` | Spec-driven development for AI coding assistants |
 | `spec-kit` | GitHub Spec Kit for Spec-Driven Development |
 
 ## Branch Structure
