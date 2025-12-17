@@ -36,7 +36,7 @@ let
   # Source hashes for each platform
   sources = {
     "x86_64-linux" = "sha256-uY6H7fckgEDoHFLr9CljXSH8vgsej4u3xN0cW8AxqIo=";
-    "aarch64-linux" = "sha256-dSPTQxYhv2SjuKAXZsDHXx9q28T2HdDGfkPGMpGsXJo=";
+    "aarch64-linux" = "sha256-AHR5QDbAXYBPAzuPNI++PV3O/FNKTYEe5hOtHYO7itE=";
     "x86_64-darwin" = "sha256-c50V1Ll/lfBYZKe1Qp12x6EzVEcX4tWSnclvl7vBnF0=";
     "aarch64-darwin" = "sha256-OMrOKM39dNHpDH/tpf4OrwP4JQ6PVlHF4Bizt1cfDnQ=";
   };
