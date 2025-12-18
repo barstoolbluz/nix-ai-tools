@@ -83,7 +83,7 @@ let
 
   # Platform-specific hashes for node_modules (due to native dependencies)
   nodeModulesHashes = {
-    x86_64-linux = "sha256-LCZlQrhng7xRUvlJ82qcSod3KpTLUwWwd7kbhqgoieg=";
+    x86_64-linux = "sha256-C1gu8PyV7Byu84i7wM7oSwYQCyG2JG/Qe7g1Csarr0M=";
     aarch64-linux = "sha256-C1gu8PyV7Byu84i7wM7oSwYQCyG2JG/Qe7g1Csarr0M=";
     x86_64-darwin = "sha256-dgR/4hulKcbOtyTkj4uONuZuGcsiTfirhqQnDWpj9Ns=";
     aarch64-darwin = "sha256-TxqGp0gT760GaFXTDeTrYd/FC7XzirAOzOlE+8JnU3k=";
