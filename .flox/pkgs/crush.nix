@@ -1,43 +1,74 @@
 {
-  buildGoModule,
-  fetchFromGitHub,
-  installShellFiles,
   lib,
+  stdenvNoCC,
+  fetchurl,
+  installShellFiles,
+  autoPatchelfHook,
+  gcc-unwrapped,
 }:
-buildGoModule rec {
-  pname = "crush";
-  version = "0.22.0";
+let
+  version = "0.26.0";
 
-  src = fetchFromGitHub {
-    owner = "charmbracelet";
-    repo = "crush";
-    rev = "v${version}";
-    hash = "sha256-kBf68RB/iV5TGR4dUWe1nIgM9Y/hfYmkrjxgZkie4So=";
+  sources = {
+    x86_64-linux = {
+      url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Linux_x86_64.tar.gz";
+      hash = "sha256-bxbmuUTQcrgQr4DGVWwTLm57H77TffPUExdK0qNUZ5A=";
+    };
+    aarch64-linux = {
+      url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Linux_arm64.tar.gz";
+      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    };
+    x86_64-darwin = {
+      url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Darwin_x86_64.tar.gz";
+      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    };
+    aarch64-darwin = {
+      url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Darwin_arm64.tar.gz";
+      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    };
   };
 
-  vendorHash = "sha256-TBpZ9gHpVvM+b94am49DvrevirxuoFmDr0Q6dwoY2Wk=";
+  source = sources.${stdenvNoCC.hostPlatform.system} or (throw "Unsupported system: ${stdenvNoCC.hostPlatform.system}");
+in
+stdenvNoCC.mkDerivation {
+  pname = "crush";
+  inherit version;
 
-  nativeBuildInputs = [ installShellFiles ];
+  src = fetchurl source;
 
-  ldflags = [
-    "-s"
-    "-w"
-    "-X=github.com/charmbracelet/crush/internal/version.Version=${version}"
+  nativeBuildInputs = [
+    installShellFiles
+  ] ++ lib.optionals stdenvNoCC.isLinux [
+    autoPatchelfHook
   ];
 
-  postInstall = ''
-    # Generate shell completions
+  buildInputs = lib.optionals stdenvNoCC.isLinux [
+    gcc-unwrapped.lib
+  ];
+
+  dontBuild = true;
+
+  installPhase = ''
+    runHook preInstall
+
+    install -Dm755 crush $out/bin/crush
+
+    # Install provided completions
     installShellCompletion --cmd crush \
-      --bash <($out/bin/crush completion bash) \
-      --fish <($out/bin/crush completion fish) \
-      --zsh <($out/bin/crush completion zsh)
+      --bash completions/crush.bash \
+      --fish completions/crush.fish \
+      --zsh completions/crush.zsh
 
-    # Install JSON schema file
-    install -Dm644 crush.json $out/share/crush/crush.json
+    # Install man page
+    install -Dm644 manpages/crush.1.gz $out/share/man/man1/crush.1.gz
+
+    # Install JSON schema if present
+    if [ -f crush.json ]; then
+      install -Dm644 crush.json $out/share/crush/crush.json
+    fi
+
+    runHook postInstall
   '';
-
-  # Tests need API keys
-  doCheck = false;
 
   meta = with lib; {
     description = "The glamourous AI coding agent for your favourite terminal";
@@ -45,5 +76,6 @@ buildGoModule rec {
     license = licenses.mit;
     maintainers = with maintainers; [ zimbatm ];
     mainProgram = "crush";
+    sourceProvenance = with sourceTypes; [ binaryNativeCode ];
   };
 }
