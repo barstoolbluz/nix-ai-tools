@@ -18,16 +18,16 @@ let
 in
 buildGoModuleWithGo1255 rec {
   pname = "crush";
-  version = "0.25.0";
+  version = "0.28.0";
 
   src = fetchFromGitHub {
     owner = "charmbracelet";
     repo = "crush";
     rev = "v${version}";
-    hash = "sha256-CYzoSfvE2lTWHD/qR6NYNdsDmu1x0ONi7WktTDB7b94=";
+    hash = "sha256-xxJUnXMhxxIlp8Djy53pAefa7q5B73/IUJe9lkyjsIA=";
   };
 
-  vendorHash = "sha256-fKV3fNu1P5oX40i6Y4hIgr5cOtIgd5kW1vlSZ5fc91k=";
+  vendorHash = "sha256-on7KXGnHPRo9y75knC5Y1r2tnJM6IBNLGUj/l5F6ico=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -44,8 +44,10 @@ buildGoModuleWithGo1255 rec {
       --fish <($out/bin/crush completion fish) \
       --zsh <($out/bin/crush completion zsh)
 
-    # Install JSON schema file
-    install -Dm644 crush.json $out/share/crush/crush.json
+    # Install JSON schema file if present
+    if [ -f crush.json ]; then
+      install -Dm644 crush.json $out/share/crush/crush.json
+    fi
   '';
 
   # Tests need API keys
