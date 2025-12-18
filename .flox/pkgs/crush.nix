@@ -16,15 +16,15 @@ let
     };
     aarch64-linux = {
       url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Linux_arm64.tar.gz";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      hash = "sha256-k7PQyBX61pHnbvgp/FPy6XD9EDzkfw4q8p201a62YqU=";
     };
     x86_64-darwin = {
       url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Darwin_x86_64.tar.gz";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      hash = "sha256-aRD1noAjXOlFdM6gQvMFYaUpdyIoG38DM8+XX8db69o=";
     };
     aarch64-darwin = {
       url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Darwin_arm64.tar.gz";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      hash = "sha256-uKsNwt1cZkyj/0t91KNdL873xULaf91ynX/EszMRvx4=";
     };
   };
 
