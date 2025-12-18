@@ -84,9 +84,9 @@ let
   # Platform-specific hashes for node_modules (due to native dependencies)
   nodeModulesHashes = {
     x86_64-linux = "sha256-JrZ/nm9elIywQ3BTenJ5Ry9s2Gi0LO3m6Zd0/fwzOts=";
-    aarch64-linux = "sha256-sAwGn/DU8118fEdysf+KY4qOz9IilAsFZGjOKxLG2xM=";
-    x86_64-darwin = "sha256-dgR/4hulKcbOtyTkj4uONuZuGcsiTfirhqQnDWpj9Ns=";
-    aarch64-darwin = "sha256-TxqGp0gT760GaFXTDeTrYd/FC7XzirAOzOlE+8JnU3k=";
+    aarch64-linux = "sha256-JrZ/nm9elIywQ3BTenJ5Ry9s2Gi0LO3m6Zd0/fwzOts=";
+    x86_64-darwin = "sha256-Zflv5ufKNvUdOaJFS9Y4OfgUwZtS5E64hz2AhNDrrdg=";
+    aarch64-darwin = "sha256-Zflv5ufKNvUdOaJFS9Y4OfgUwZtS5E64hz2AhNDrrdg=";
   };
 
   node_modules = fetchOpencodeNodeModules {
