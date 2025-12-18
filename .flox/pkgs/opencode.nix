@@ -18,7 +18,7 @@ let
     { src, hash, ... }@args:
     stdenvNoCC.mkDerivation {
       pname = "opencode-node_modules";
-      version = args.version or "1.0.68";
+      version = args.version or "1.0.167";
       inherit src;
 
       impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [
@@ -72,21 +72,21 @@ let
       outputHashMode = "recursive";
     };
 
-  version = "1.0.68";
+  version = "1.0.167";
 
   src = fetchFromGitHub {
     owner = "sst";
     repo = "opencode";
     tag = "v${version}";
-    hash = "sha256-lG6OIi1yT9mqdzmMguUQ5xdIuuEoByVL2GPOVyIny0c=";
+    hash = "sha256-+1T4i+s1KJxTp8uzN7fqyvJferjti5ZKxvMKEN81XUY=";
   };
 
   # Platform-specific hashes for node_modules (due to native dependencies)
   nodeModulesHashes = {
-    x86_64-linux = "sha256-C1gu8PyV7Byu84i7wM7oSwYQCyG2JG/Qe7g1Csarr0M=";
-    aarch64-linux = "sha256-C1gu8PyV7Byu84i7wM7oSwYQCyG2JG/Qe7g1Csarr0M=";
-    x86_64-darwin = "sha256-dgR/4hulKcbOtyTkj4uONuZuGcsiTfirhqQnDWpj9Ns=";
-    aarch64-darwin = "sha256-TxqGp0gT760GaFXTDeTrYd/FC7XzirAOzOlE+8JnU3k=";
+    x86_64-linux = "sha256-JrZ/nm9elIywQ3BTenJ5Ry9s2Gi0LO3m6Zd0/fwzOts=";
+    aarch64-linux = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    x86_64-darwin = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    aarch64-darwin = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
 
   node_modules = fetchOpencodeNodeModules {
@@ -113,31 +113,7 @@ stdenv.mkDerivation {
 
   # Inline patches as strings
   patches = [
-    # Patch 1: Use local MODELS_DEV_API_JSON if available
-    (builtins.toFile "local-models-dev.patch" ''
-      diff --git a/packages/opencode/src/provider/models-macro.ts b/packages/opencode/src/provider/models-macro.ts
-      index 91a0348..081eb0d 100644
-      --- a/packages/opencode/src/provider/models-macro.ts
-      +++ b/packages/opencode/src/provider/models-macro.ts
-      @@ -1,4 +1,15 @@
-       export async function data() {
-      +  const localApiJsonPath = process.env.MODELS_DEV_API_JSON
-      +
-      +  // Try to read from local file if path is provided
-      +  if (localApiJsonPath) {
-      +    const localFile = Bun.file(localApiJsonPath)
-      +    if (await localFile.exists()) {
-      +      return await localFile.text()
-      +    }
-      +  }
-      +
-      +  // Fallback to fetching from remote URL
-         const json = await fetch("https://models.dev/api.json").then((x) => x.text())
-         return json
-       }
-    '')
-
-    # Patch 2: Relax Bun version check
+    # Patch: Relax Bun version check
     (builtins.toFile "relax-bun-version-check.patch" ''
       diff --git a/packages/script/src/index.ts b/packages/script/src/index.ts
       index 141d2b75..de06d0dc 100644
