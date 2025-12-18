@@ -6,7 +6,7 @@ This repository provides [Flox](https://flox.dev)-compatible Nix expressions tha
 
 ## What's Here
 
-The `.flox/pkgs/` directory contains build recipes for 22 AI coding tools:
+The `.flox/pkgs/` directory contains build recipes for 20 AI coding tools:
 
 | Package | Description |
 |---------|-------------|
@@ -29,22 +29,12 @@ The `.flox/pkgs/` directory contains build recipes for 22 AI coding tools:
 | `kilocode-cli` | Open-source AI coding agent |
 | `nanocoder` | Local-first coding agent |
 | `opencode` | Terminal-based AI coding agent |
-| `openskills` | Universal skills loader for AI coding agents |
-| `openspec` | Spec-driven development for AI coding assistants |
 | `spec-kit` | GitHub Spec Kit for Spec-Driven Development |
-
-## Branch Structure
-
-This repository maintains three branches for different purposes:
-
-- **`main`** - Current stable versions (e.g., crush v0.22.0, code v0.6.6, nanocoder v1.19.1)
-- **`nightly`** - Bleeding-edge versions requiring newer toolchains (e.g., crush v0.25.0 with Go 1.25.5)
-- **`historical`** - Older versions maintained for backward compatibility (e.g., crush v0.21.0, code v0.6.5, nanocoder v1.18.0)
 
 ## Usage with Flox
 
 ```bash
-# Build a package from current branch
+# Build a package
 flox build cursor-agent
 
 # Publish to your catalog
@@ -52,10 +42,6 @@ flox publish cursor-agent
 
 # Or publish to an organization
 flox publish -o myorg cursor-agent
-
-# To use packages from a specific branch
-git checkout nightly  # or historical
-flox build <package>
 ```
 
 ## How It Works
@@ -72,12 +58,21 @@ callPackage "${upstream}/packages/<tool>/package.nix" { }
 
 Some packages (like `opencode.nix` and `goose-cli.nix`) have custom local derivations where additional modifications were needed.
 
+## Branch Strategy
+
+This repository uses a three-branch strategy:
+- **`main`** - Stable versions using standard nixpkgs toolchains
+- **`nightly`** - Latest upstream versions, may vendor newer toolchains (e.g., Go versions not yet in nixpkgs)
+- **`historical`** - Previous stable versions for compatibility
+
+The nightly branch includes vendored Go when packages require versions newer than nixpkgs provides.
+
 ## Upstream Sync
 
 To update to the latest upstream package definitions:
 
 ```bash
-# Update the rev/hash in .flox/lib/fetch-upstream.nix
+# Update the rev/hash in .flox/pkgs/fetch-upstream.nix
 # Then rebuild packages
 flox build <package>
 ```
