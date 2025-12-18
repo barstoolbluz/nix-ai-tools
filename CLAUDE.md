@@ -4,51 +4,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Nix flake repository that packages various AI coding agents and tools for the Nix ecosystem. The repository serves as both a collection of packaged AI tools and an experimental platform for exploring AI/Nix integration patterns like sandboxing and provider abstraction.
+This is a Flox-based repository that packages various AI coding agents and tools. It leverages upstream work from numtide's repository while maintaining custom packages where needed. The repository uses a three-branch strategy for version management and includes vendored toolchains when required.
 
 ## Common Development Commands
 
 ### Building and Testing
 ```bash
-# Enter development shell with all required tools
-nix develop
+# Build a package with Flox
+flox build crush
+flox build opencode
 
-# Build a specific package
-nix build .#claude-code
-nix build .#opencode
-nix build .#gemini-cli
+# Publish to your catalog
+flox publish crush
+flox publish -o myorg opencode
 
-# Run a tool without installing
-nix run .#claude-code -- --help
-nix run .#opencode -- --help
+# Switch branches for different versions
+git checkout main     # Stable versions
+git checkout nightly  # Latest versions
+git checkout historical  # Older compatible versions
 
-# Run all repository checks (builds all packages and runs linters)
-nix flake check
-
-# Format all code (MUST run before committing)
-nix fmt
-```
-
-### Package Management
-```bash
-# Regenerate package documentation in README
-./scripts/generate-package-docs.sh
-
-# Update a specific package (if it has an update script)
-./packages/<package-name>/update.sh
-
-# List all available packages
-nix flake show
+# Test built executables
+./result-crush/bin/crush --version
+./result-opencode/bin/opencode --version
 ```
 
 ## Architecture and Key Patterns
 
 ### Package Structure
-Each package follows a consistent structure under `packages/<tool-name>/`:
-- `package.nix`: The actual Nix derivation defining the package
-- `default.nix`: Simple wrapper that calls the package (always `{ pkgs }: pkgs.callPackage ./package.nix { }`)
-- `update.sh`: Optional update script for automated version bumps
-- Lockfiles when needed (e.g., `package-lock.json` for npm packages)
+Packages are located in `.flox/pkgs/` and follow these patterns:
+- Most delegate to upstream numtide repository
+- Custom derivations for packages needing modifications (e.g., `opencode.nix`, `goose-cli.nix`, `crush.nix`)
+- Vendored toolchains when needed (e.g., custom Go versions in nightly for packages requiring newer than nixpkgs)
 
 ### Package Types and Build Patterns
 The repository handles three main package types:
@@ -56,35 +42,30 @@ The repository handles three main package types:
 2. **Binary packages**: Pre-built binaries with `autoPatchelfHook` for Linux dynamic library handling
 3. **Bytecode packages**: Interpreted/VM-based packages
 
-### Key Infrastructure
-- **Blueprint**: The flake uses numtide/blueprint for structure, configured in `flake.nix`
-- **Treefmt**: Code formatting is handled by treefmt with configuration in `packages/formatter/treefmt.nix`
-- **GitHub Actions**: Daily automated updates via `.github/workflows/update.yml` and `update-flake.yml`
-- **Binary Cache**: Pre-built packages available from Numtide Cachix cache
+### Branch Strategy
+- **main**: Stable versions using standard toolchains from nixpkgs
+- **nightly**: Latest upstream versions, may include vendored toolchains for bleeding-edge requirements
+- **historical**: Previous stable versions maintained for compatibility
 
-### Special Packages
-- **claudebox**: Experimental sandboxed wrapper for Claude Code demonstrating confined AI agent execution
-- **claude-code-router**: Provider abstraction layer allowing Claude Code to work with different LLM backends
+The vendoring strategy is used when packages require toolchain versions not yet available in nixpkgs (e.g., Go versions for crush after certain releases).
 
 ## Package Development Guidelines
 
 ### Adding a New Package
-1. Create directory `packages/<tool-name>/`
-2. Create `package.nix` with the derivation
-3. Create `default.nix` with standard wrapper: `{ pkgs }: pkgs.callPackage ./package.nix { }`
-4. Add update script if the package has predictable updates (npm, GitHub releases, etc.)
-5. Ensure proper metadata (description, homepage, license, sourceProvenance)
-6. Run `nix fmt` and `nix build .#<tool-name>` to verify
+1. Create `.flox/pkgs/<tool-name>.nix` with the derivation
+2. For packages delegating to upstream, use the fetch-upstream pattern
+3. For custom packages, implement the full derivation
+4. Test with `flox build <tool-name>`
+5. Consider branch placement based on toolchain requirements
 
-### Update Scripts
-Update scripts should:
-- Be idempotent and handle already-up-to-date cases
-- Use `nix-prefetch-url` or similar for hash calculation
-- Update both version and hash fields in `package.nix`
-- Build the package to verify the update worked
+### Updating Packages
+- Check upstream repository for new releases
+- Update version and hash fields in the derivation
+- Test build with `flox build <package>`
+- Consider which branch is appropriate for the update
 
 ### Common Patterns for Specific Languages
-- **NPM packages**: Use `buildNpmPackage`, include `package-lock.json`, set `nodejs` version explicitly
+- **NPM packages**: Use `buildNpmPackage`, include `package-lock.json`, specify nodejs attribute
 - **Rust packages**: Use `rustPlatform.buildRustPackage`, handle cargo vendor issues
 - **Binary packages**: Use `autoPatchelfHook` on Linux, set `dontUnpack = true` for single executables
 
@@ -96,12 +77,12 @@ Update scripts should:
 - NPM packages: Ensure `package-lock.json` is up-to-date and `npmDepsHash` is correct
 
 ### Testing Changes
-- Always run `nix fmt` before committing
-- Test package builds: `nix build .#<package-name>`
-- Run full checks: `nix flake check`
-- Test runtime: `nix run .#<package-name> -- --help`
+- Test package builds: `flox build <package-name>`
+- Test runtime: `./result-<package>/bin/<package> --version`
+- Switch branches to test different version strategies
+- Verify vendored toolchains work when used
 
 ## Commit Message Conventions
-- Version updates: `<package>: <old-version> -> <new-version> (#PR)`
-- New packages: `<package>: init at <version>`
+- Package updates: `<package>: update to latest`
+- New packages: `<package>: init`
 - Infrastructure changes: Use appropriate prefix (e.g., `workflows:`, `formatter:`, `flake:`)

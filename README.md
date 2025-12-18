@@ -58,12 +58,21 @@ callPackage "${upstream}/packages/<tool>/package.nix" { }
 
 Some packages (like `opencode.nix` and `goose-cli.nix`) have custom local derivations where additional modifications were needed.
 
+## Branch Strategy
+
+This repository uses a three-branch strategy:
+- **`main`** - Stable versions using standard nixpkgs toolchains
+- **`nightly`** - Latest upstream versions, may vendor newer toolchains (e.g., Go versions not yet in nixpkgs)
+- **`historical`** - Previous stable versions for compatibility
+
+The nightly branch includes vendored Go when packages require versions newer than nixpkgs provides.
+
 ## Upstream Sync
 
 To update to the latest upstream package definitions:
 
 ```bash
-# Update the rev/hash in .flox/lib/fetch-upstream.nix
+# Update the rev/hash in .flox/pkgs/fetch-upstream.nix
 # Then rebuild packages
 flox build <package>
 ```
