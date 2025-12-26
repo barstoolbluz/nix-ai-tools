@@ -72,21 +72,21 @@ let
       outputHashMode = "recursive";
     };
 
-  version = "1.0.168";
+  version = "1.0.202";
 
   src = fetchFromGitHub {
     owner = "sst";
     repo = "opencode";
     tag = "v${version}";
-    hash = "sha256-wNM3PQW0EMk9OF5YRnXnbqPhL0ClgZIW4h2gqTEvIKw=";
+    hash = "sha256-SEq8Dcv4R4t9faEfGFb0dPYAFdkhq0e+rPNk7jqhvkU=";
   };
 
   # Platform-specific hashes for node_modules (due to native dependencies)
   nodeModulesHashes = {
-    x86_64-linux = "sha256-JrZ/nm9elIywQ3BTenJ5Ry9s2Gi0LO3m6Zd0/fwzOts=";
-    aarch64-linux = "sha256-JrZ/nm9elIywQ3BTenJ5Ry9s2Gi0LO3m6Zd0/fwzOts=";
-    x86_64-darwin = "sha256-Zflv5ufKNvUdOaJFS9Y4OfgUwZtS5E64hz2AhNDrrdg=";
-    aarch64-darwin = "sha256-Zflv5ufKNvUdOaJFS9Y4OfgUwZtS5E64hz2AhNDrrdg=";
+    x86_64-linux = "sha256-RgKGxLc5IxfY4HNEx6OoHK01aJjCnT/O9R8id8mek94=";
+    aarch64-linux = "sha256-RgKGxLc5IxfY4HNEx6OoHK01aJjCnT/O9R8id8mek94=";
+    x86_64-darwin = "sha256-RgKGxLc5IxfY4HNEx6OoHK01aJjCnT/O9R8id8mek94=";
+    aarch64-darwin = "sha256-RgKGxLc5IxfY4HNEx6OoHK01aJjCnT/O9R8id8mek94=";
   };
 
   node_modules = fetchOpencodeNodeModules {
