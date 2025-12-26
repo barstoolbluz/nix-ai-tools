@@ -7,24 +7,24 @@
   gcc-unwrapped,
 }:
 let
-  version = "0.26.0";
+  version = "0.28.0";
 
   sources = {
     x86_64-linux = {
       url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Linux_x86_64.tar.gz";
-      hash = "sha256-bxbmuUTQcrgQr4DGVWwTLm57H77TffPUExdK0qNUZ5A=";
+      hash = "sha256-wOrxQgcjzx1Ogxxq0mUH+rA8+fxxEoY9H74tqgWjD3M=";
     };
     aarch64-linux = {
       url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Linux_arm64.tar.gz";
-      hash = "sha256-k7PQyBX61pHnbvgp/FPy6XD9EDzkfw4q8p201a62YqU=";
+      hash = "sha256-Rnrj2W6JIwBxzchTUlQfWzh7BfzXzL5YyJC1z9fCUVI=";
     };
     x86_64-darwin = {
       url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Darwin_x86_64.tar.gz";
-      hash = "sha256-aRD1noAjXOlFdM6gQvMFYaUpdyIoG38DM8+XX8db69o=";
+      hash = "sha256-xNPsK9i+N3iBLLvwfxwHKiE7FFRAU0E/UJQh0aoUcrg=";
     };
     aarch64-darwin = {
       url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Darwin_arm64.tar.gz";
-      hash = "sha256-uKsNwt1cZkyj/0t91KNdL873xULaf91ynX/EszMRvx4=";
+      hash = "sha256-j7HwvJC7vF7sHsX1hqGJg1yb5eoODzLYTEXzRGb1+Rg=";
     };
   };
 
