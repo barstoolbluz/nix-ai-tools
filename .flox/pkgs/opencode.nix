@@ -111,6 +111,58 @@ stdenv.mkDerivation {
     stdenv.cc.cc.lib
   ];
 
+  postPatch = ''
+    # Create the stubs directory first
+    mkdir -p packages/opencode/src/provider/stubs
+
+    # Create stub modules for missing AI SDK packages
+    # These providers won't work but allow the build to complete
+    cat > packages/opencode/src/provider/stubs/groq.ts << 'EOF'
+export function createGroq(...args: any[]) {
+  throw new Error("@ai-sdk/groq provider is not available in this build");
+}
+EOF
+    cat > packages/opencode/src/provider/stubs/deepinfra.ts << 'EOF'
+export function createDeepInfra(...args: any[]) {
+  throw new Error("@ai-sdk/deepinfra provider is not available in this build");
+}
+EOF
+    cat > packages/opencode/src/provider/stubs/cerebras.ts << 'EOF'
+export function createCerebras(...args: any[]) {
+  throw new Error("@ai-sdk/cerebras provider is not available in this build");
+}
+EOF
+    cat > packages/opencode/src/provider/stubs/cohere.ts << 'EOF'
+export function createCohere(...args: any[]) {
+  throw new Error("@ai-sdk/cohere provider is not available in this build");
+}
+EOF
+    cat > packages/opencode/src/provider/stubs/gateway.ts << 'EOF'
+export function createGateway(...args: any[]) {
+  throw new Error("@ai-sdk/gateway provider is not available in this build");
+}
+EOF
+    cat > packages/opencode/src/provider/stubs/togetherai.ts << 'EOF'
+export function createTogetherAI(...args: any[]) {
+  throw new Error("@ai-sdk/togetherai provider is not available in this build");
+}
+EOF
+    cat > packages/opencode/src/provider/stubs/perplexity.ts << 'EOF'
+export function createPerplexity(...args: any[]) {
+  throw new Error("@ai-sdk/perplexity provider is not available in this build");
+}
+EOF
+
+    # Replace imports with local stubs
+    sed -i 's|from "@ai-sdk/groq"|from "./stubs/groq"|' packages/opencode/src/provider/provider.ts
+    sed -i 's|from "@ai-sdk/deepinfra"|from "./stubs/deepinfra"|' packages/opencode/src/provider/provider.ts
+    sed -i 's|from "@ai-sdk/cerebras"|from "./stubs/cerebras"|' packages/opencode/src/provider/provider.ts
+    sed -i 's|from "@ai-sdk/cohere"|from "./stubs/cohere"|' packages/opencode/src/provider/provider.ts
+    sed -i 's|from "@ai-sdk/gateway"|from "./stubs/gateway"|' packages/opencode/src/provider/provider.ts
+    sed -i 's|from "@ai-sdk/togetherai"|from "./stubs/togetherai"|' packages/opencode/src/provider/provider.ts
+    sed -i 's|from "@ai-sdk/perplexity"|from "./stubs/perplexity"|' packages/opencode/src/provider/provider.ts
+  '';
+
   # Inline patches as strings
   patches = [
     # Patch: Relax Bun version check
