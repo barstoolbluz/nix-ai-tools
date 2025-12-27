@@ -3,6 +3,7 @@
   stdenv,
   stdenvNoCC,
   fetchFromGitHub,
+  fetchurl,
   bun,
   fzf,
   makeBinaryWrapper,
@@ -13,6 +14,38 @@
 }:
 
 let
+  # Fetch missing AI SDK packages
+  aiSdkPackages = {
+    groq = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/groq/-/groq-2.0.32.tgz";
+      hash = "sha256-SzDUzIMefyyq226U3Ugxgo+Q6k7joUWohbI0hYEtKto=";
+    };
+    deepinfra = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/deepinfra/-/deepinfra-2.0.1.tgz";
+      hash = "sha256-7SDXYwh46xATtST8NuLtHfDGiwSi4x43dp23C5rBdUs=";
+    };
+    cerebras = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/cerebras/-/cerebras-1.0.33.tgz";
+      hash = "sha256-nX5z7JTq5v+ZlJulU7CU6uRv0ova40LcoWpgnrt77uE=";
+    };
+    cohere = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/cohere/-/cohere-3.0.0.tgz";
+      hash = "sha256-pNZ8fbKIt8LWk45nUGnQc/RtCqZAHPb65izaq23kK8s=";
+    };
+    gateway = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/gateway/-/gateway-2.0.3.tgz";
+      hash = "sha256-fOVzEp1pZ3gyyTHVxFKu6khWcB2xEv6zB5qYABf8/tc=";
+    };
+    togetherai = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/togetherai/-/togetherai-1.0.30.tgz";
+      hash = "sha256-Cmrjgc+zCe4NN/fcx9BZ9c3i8XH2NIwrxfsuzC1iDYg=";
+    };
+    perplexity = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/perplexity/-/perplexity-2.0.21.tgz";
+      hash = "sha256-sTAUUZ7kzYAsOT/NwGfK2CsOiw/g7qJfmH6ILAr6TEk=";
+    };
+  };
+
   # Inline fetchBunDeps function for node_modules FOD
   fetchOpencodeNodeModules =
     { src, hash, ... }@args:
@@ -36,6 +69,7 @@ let
       buildPhase = ''
         runHook preBuild
 
+        # First install regular dependencies
         export BUN_INSTALL_CACHE_DIR=$(mktemp -d)
 
         bun install \
@@ -47,6 +81,21 @@ let
           --no-progress \
           --os="*" \
           --production
+
+        # Then manually add the missing AI SDK packages
+        cd packages/opencode/node_modules
+        mkdir -p @ai-sdk
+        cd @ai-sdk
+
+        tar -xzf ${aiSdkPackages.groq} && mv package groq
+        tar -xzf ${aiSdkPackages.deepinfra} && mv package deepinfra
+        tar -xzf ${aiSdkPackages.cerebras} && mv package cerebras
+        tar -xzf ${aiSdkPackages.cohere} && mv package cohere
+        tar -xzf ${aiSdkPackages.gateway} && mv package gateway
+        tar -xzf ${aiSdkPackages.togetherai} && mv package togetherai
+        tar -xzf ${aiSdkPackages.perplexity} && mv package perplexity
+
+        cd ../../../../..
 
         runHook postBuild
       '';
@@ -82,11 +131,12 @@ let
   };
 
   # Platform-specific hashes for node_modules (due to native dependencies)
+  # Need new hash since we're adding packages
   nodeModulesHashes = {
-    x86_64-linux = "sha256-RgKGxLc5IxfY4HNEx6OoHK01aJjCnT/O9R8id8mek94=";
-    aarch64-linux = "sha256-RgKGxLc5IxfY4HNEx6OoHK01aJjCnT/O9R8id8mek94=";
-    x86_64-darwin = "sha256-RgKGxLc5IxfY4HNEx6OoHK01aJjCnT/O9R8id8mek94=";
-    aarch64-darwin = "sha256-RgKGxLc5IxfY4HNEx6OoHK01aJjCnT/O9R8id8mek94=";
+    x86_64-linux = "sha256-nZsubzk/iXLLzSfUCaDMUce30WW0yZi2k4MJsuEbYuc=";
+    aarch64-linux = "sha256-nZsubzk/iXLLzSfUCaDMUce30WW0yZi2k4MJsuEbYuc=";
+    x86_64-darwin = "sha256-nZsubzk/iXLLzSfUCaDMUce30WW0yZi2k4MJsuEbYuc=";
+    aarch64-darwin = "sha256-nZsubzk/iXLLzSfUCaDMUce30WW0yZi2k4MJsuEbYuc=";
   };
 
   node_modules = fetchOpencodeNodeModules {
@@ -111,57 +161,6 @@ stdenv.mkDerivation {
     stdenv.cc.cc.lib
   ];
 
-  postPatch = ''
-    # Create the stubs directory first
-    mkdir -p packages/opencode/src/provider/stubs
-
-    # Create stub modules for missing AI SDK packages
-    # These providers won't work but allow the build to complete
-    cat > packages/opencode/src/provider/stubs/groq.ts << 'EOF'
-export function createGroq(...args: any[]) {
-  throw new Error("@ai-sdk/groq provider is not available in this build");
-}
-EOF
-    cat > packages/opencode/src/provider/stubs/deepinfra.ts << 'EOF'
-export function createDeepInfra(...args: any[]) {
-  throw new Error("@ai-sdk/deepinfra provider is not available in this build");
-}
-EOF
-    cat > packages/opencode/src/provider/stubs/cerebras.ts << 'EOF'
-export function createCerebras(...args: any[]) {
-  throw new Error("@ai-sdk/cerebras provider is not available in this build");
-}
-EOF
-    cat > packages/opencode/src/provider/stubs/cohere.ts << 'EOF'
-export function createCohere(...args: any[]) {
-  throw new Error("@ai-sdk/cohere provider is not available in this build");
-}
-EOF
-    cat > packages/opencode/src/provider/stubs/gateway.ts << 'EOF'
-export function createGateway(...args: any[]) {
-  throw new Error("@ai-sdk/gateway provider is not available in this build");
-}
-EOF
-    cat > packages/opencode/src/provider/stubs/togetherai.ts << 'EOF'
-export function createTogetherAI(...args: any[]) {
-  throw new Error("@ai-sdk/togetherai provider is not available in this build");
-}
-EOF
-    cat > packages/opencode/src/provider/stubs/perplexity.ts << 'EOF'
-export function createPerplexity(...args: any[]) {
-  throw new Error("@ai-sdk/perplexity provider is not available in this build");
-}
-EOF
-
-    # Replace imports with local stubs
-    sed -i 's|from "@ai-sdk/groq"|from "./stubs/groq"|' packages/opencode/src/provider/provider.ts
-    sed -i 's|from "@ai-sdk/deepinfra"|from "./stubs/deepinfra"|' packages/opencode/src/provider/provider.ts
-    sed -i 's|from "@ai-sdk/cerebras"|from "./stubs/cerebras"|' packages/opencode/src/provider/provider.ts
-    sed -i 's|from "@ai-sdk/cohere"|from "./stubs/cohere"|' packages/opencode/src/provider/provider.ts
-    sed -i 's|from "@ai-sdk/gateway"|from "./stubs/gateway"|' packages/opencode/src/provider/provider.ts
-    sed -i 's|from "@ai-sdk/togetherai"|from "./stubs/togetherai"|' packages/opencode/src/provider/provider.ts
-    sed -i 's|from "@ai-sdk/perplexity"|from "./stubs/perplexity"|' packages/opencode/src/provider/provider.ts
-  '';
 
   # Inline patches as strings
   patches = [
