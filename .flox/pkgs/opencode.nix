@@ -14,38 +14,6 @@
 }:
 
 let
-  # Fetch missing AI SDK packages
-  aiSdkPackages = {
-    groq = fetchurl {
-      url = "https://registry.npmjs.org/@ai-sdk/groq/-/groq-2.0.32.tgz";
-      hash = "sha256-SzDUzIMefyyq226U3Ugxgo+Q6k7joUWohbI0hYEtKto=";
-    };
-    deepinfra = fetchurl {
-      url = "https://registry.npmjs.org/@ai-sdk/deepinfra/-/deepinfra-2.0.1.tgz";
-      hash = "sha256-7SDXYwh46xATtST8NuLtHfDGiwSi4x43dp23C5rBdUs=";
-    };
-    cerebras = fetchurl {
-      url = "https://registry.npmjs.org/@ai-sdk/cerebras/-/cerebras-1.0.33.tgz";
-      hash = "sha256-nX5z7JTq5v+ZlJulU7CU6uRv0ova40LcoWpgnrt77uE=";
-    };
-    cohere = fetchurl {
-      url = "https://registry.npmjs.org/@ai-sdk/cohere/-/cohere-3.0.0.tgz";
-      hash = "sha256-pNZ8fbKIt8LWk45nUGnQc/RtCqZAHPb65izaq23kK8s=";
-    };
-    gateway = fetchurl {
-      url = "https://registry.npmjs.org/@ai-sdk/gateway/-/gateway-2.0.3.tgz";
-      hash = "sha256-fOVzEp1pZ3gyyTHVxFKu6khWcB2xEv6zB5qYABf8/tc=";
-    };
-    togetherai = fetchurl {
-      url = "https://registry.npmjs.org/@ai-sdk/togetherai/-/togetherai-1.0.30.tgz";
-      hash = "sha256-Cmrjgc+zCe4NN/fcx9BZ9c3i8XH2NIwrxfsuzC1iDYg=";
-    };
-    perplexity = fetchurl {
-      url = "https://registry.npmjs.org/@ai-sdk/perplexity/-/perplexity-2.0.21.tgz";
-      hash = "sha256-sTAUUZ7kzYAsOT/NwGfK2CsOiw/g7qJfmH6ILAr6TEk=";
-    };
-  };
-
   # Inline fetchBunDeps function for node_modules FOD
   fetchOpencodeNodeModules =
     { src, hash, ... }@args:
@@ -69,7 +37,6 @@ let
       buildPhase = ''
         runHook preBuild
 
-        # First install regular dependencies
         export BUN_INSTALL_CACHE_DIR=$(mktemp -d)
 
         bun install \
@@ -81,21 +48,6 @@ let
           --no-progress \
           --os="*" \
           --production
-
-        # Then manually add the missing AI SDK packages
-        cd packages/opencode/node_modules
-        mkdir -p @ai-sdk
-        cd @ai-sdk
-
-        tar -xzf ${aiSdkPackages.groq} && mv package groq
-        tar -xzf ${aiSdkPackages.deepinfra} && mv package deepinfra
-        tar -xzf ${aiSdkPackages.cerebras} && mv package cerebras
-        tar -xzf ${aiSdkPackages.cohere} && mv package cohere
-        tar -xzf ${aiSdkPackages.gateway} && mv package gateway
-        tar -xzf ${aiSdkPackages.togetherai} && mv package togetherai
-        tar -xzf ${aiSdkPackages.perplexity} && mv package perplexity
-
-        cd ../../../../..
 
         runHook postBuild
       '';
@@ -192,13 +144,35 @@ stdenv.mkDerivation {
     runHook preBuild
 
     # Copy all node_modules including the .bun directory with actual packages
-    cp -r ${node_modules}/node_modules .
-    cp -r ${node_modules}/packages .
+    cp -r ${node_modules}/source/node_modules .
+    cp -r ${node_modules}/source/packages .
 
     cd packages/opencode
 
-    # Fix symlinks to workspace packages
+    # Fix permissions first
     chmod -R u+w ./node_modules
+
+    # Comment out the missing provider imports
+    sed -i 's/^import { createGroq }/\/\/ import { createGroq }/' src/provider/provider.ts
+    sed -i 's/^import { createDeepInfra }/\/\/ import { createDeepInfra }/' src/provider/provider.ts
+    sed -i 's/^import { createCerebras }/\/\/ import { createCerebras }/' src/provider/provider.ts
+    sed -i 's/^import { createCohere }/\/\/ import { createCohere }/' src/provider/provider.ts
+    sed -i 's/^import { createGateway }/\/\/ import { createGateway }/' src/provider/provider.ts
+    sed -i 's/^import { createTogetherAI }/\/\/ import { createTogetherAI }/' src/provider/provider.ts
+    sed -i 's/^import { createPerplexity }/\/\/ import { createPerplexity }/' src/provider/provider.ts
+
+    # Define stub functions for the missing providers
+    cat >> src/provider/provider.ts << 'EOF'
+
+// Stub functions for missing providers
+const createGroq = () => { throw new Error("@ai-sdk/groq not available in this build"); };
+const createDeepInfra = () => { throw new Error("@ai-sdk/deepinfra not available in this build"); };
+const createCerebras = () => { throw new Error("@ai-sdk/cerebras not available in this build"); };
+const createCohere = () => { throw new Error("@ai-sdk/cohere not available in this build"); };
+const createGateway = () => { throw new Error("@ai-sdk/gateway not available in this build"); };
+const createTogetherAI = () => { throw new Error("@ai-sdk/togetherai not available in this build"); };
+const createPerplexity = () => { throw new Error("@ai-sdk/perplexity not available in this build"); };
+EOF
     mkdir -p ./node_modules/@opencode-ai
     rm -f ./node_modules/@opencode-ai/{script,sdk,plugin}
     ln -s $(pwd)/../../packages/script ./node_modules/@opencode-ai/script
