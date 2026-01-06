@@ -16,7 +16,7 @@ let
     };
     aarch64-linux = {
       url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Linux_arm64.tar.gz";
-      hash = "sha256-gQZzkDSCCA3DfgQlTGHt93A4PA2SfeEHg/1C/tbi53A=";
+      hash = "sha256-gQZzkDSCGA3DfgQlTGHt93A4PA2SfeEHg/1C/tbi53A=";
     };
     x86_64-darwin = {
       url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Darwin_x86_64.tar.gz";
