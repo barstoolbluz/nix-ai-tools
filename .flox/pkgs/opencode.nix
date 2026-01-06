@@ -14,6 +14,60 @@
 }:
 
 let
+  # Fetch missing AI SDK packages AND their dependencies
+  aiSdkPackages = {
+    groq = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/groq/-/groq-2.0.32.tgz";
+      hash = "sha256-SzDUzIMefyyq226U3Ugxgo+Q6k7joUWohbI0hYEtKto=";
+    };
+    deepinfra = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/deepinfra/-/deepinfra-2.0.1.tgz";
+      hash = "sha256-7SDXYwh46xATtST8NuLtHfDGiwSi4x43dp23C5rBdUs=";
+    };
+    cerebras = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/cerebras/-/cerebras-1.0.33.tgz";
+      hash = "sha256-nX5z7JTq5v+ZlJulU7CU6uRv0ova40LcoWpgnrt77uE=";
+    };
+    cohere = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/cohere/-/cohere-3.0.0.tgz";
+      hash = "sha256-pNZ8fbKIt8LWk45nUGnQc/RtCqZAHPb65izaq23kK8s=";
+    };
+    gateway = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/gateway/-/gateway-2.0.3.tgz";
+      hash = "sha256-fOVzEp1pZ3gyyTHVxFKu6khWcB2xEv6zB5qYABf8/tc=";
+    };
+    togetherai = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/togetherai/-/togetherai-1.0.30.tgz";
+      hash = "sha256-Cmrjgc+zCe4NN/fcx9BZ9c3i8XH2NIwrxfsuzC1iDYg=";
+    };
+    perplexity = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/perplexity/-/perplexity-2.0.21.tgz";
+      hash = "sha256-sTAUUZ7kzYAsOT/NwGfK2CsOiw/g7qJfmH6ILAr6TEk=";
+    };
+    # Dependencies needed by these packages
+    providerUtils = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-4.0.1.tgz";
+      hash = "sha256-SiBegYyz66+HonZOIaNo7Yh9so2eBD8hkshKDgRT530=";
+    };
+    provider = fetchurl {
+      url = "https://registry.npmjs.org/@ai-sdk/provider/-/provider-3.0.0.tgz";
+      hash = "sha256-5N6PPNBHkb8fQgMJjwJmTB5Mcg91Vf1kIj7HJ2F8FgE=";
+    };
+    vercelOidc = fetchurl {
+      url = "https://registry.npmjs.org/@vercel/oidc/-/oidc-3.0.5.tgz";
+      hash = "sha256-hnAMFxT7AS2zCTcJ/5Bkllp8oRkfAp5fjMvhiMJdKAY=";
+    };
+    # Additional dependencies for provider-utils
+    standardSchemaSpec = fetchurl {
+      url = "https://registry.npmjs.org/@standard-schema/spec/-/spec-1.1.0.tgz";
+      hash = "sha256-p8tyaL4oCrUY1FD4w7B8hvI0FyJcCrU2ke1ZswZ8zq8=";
+    };
+    eventsourceParser = fetchurl {
+      url = "https://registry.npmjs.org/eventsource-parser/-/eventsource-parser-3.0.6.tgz";
+      hash = "sha256-RFxkfQ/iIoGEpmsr+86hc6p1jrtgb7Lwec6bMoyVN+k=";
+    };
+  };
+
   # Inline fetchBunDeps function for node_modules FOD
   fetchOpencodeNodeModules =
     { src, hash, ... }@args:
@@ -144,35 +198,73 @@ stdenv.mkDerivation {
     runHook preBuild
 
     # Copy all node_modules including the .bun directory with actual packages
-    cp -r ${node_modules}/source/node_modules .
-    cp -r ${node_modules}/source/packages .
+    cp -r "${node_modules}/source/node_modules" .
+    cp -r "${node_modules}/source/packages" .
 
     cd packages/opencode
 
     # Fix permissions first
     chmod -R u+w ./node_modules
 
-    # Comment out the missing provider imports
-    sed -i 's/^import { createGroq }/\/\/ import { createGroq }/' src/provider/provider.ts
-    sed -i 's/^import { createDeepInfra }/\/\/ import { createDeepInfra }/' src/provider/provider.ts
-    sed -i 's/^import { createCerebras }/\/\/ import { createCerebras }/' src/provider/provider.ts
-    sed -i 's/^import { createCohere }/\/\/ import { createCohere }/' src/provider/provider.ts
-    sed -i 's/^import { createGateway }/\/\/ import { createGateway }/' src/provider/provider.ts
-    sed -i 's/^import { createTogetherAI }/\/\/ import { createTogetherAI }/' src/provider/provider.ts
-    sed -i 's/^import { createPerplexity }/\/\/ import { createPerplexity }/' src/provider/provider.ts
+    # Add the REAL AI SDK packages
+    mkdir -p ./node_modules/@ai-sdk
+    cd ./node_modules/@ai-sdk
 
-    # Define stub functions for the missing providers
-    cat >> src/provider/provider.ts << 'EOF'
+    # Remove existing symlinks/directories that we'll replace with vendored versions
+    rm -rf provider-utils provider groq deepinfra cerebras cohere gateway togetherai perplexity
 
-// Stub functions for missing providers
-const createGroq = () => { throw new Error("@ai-sdk/groq not available in this build"); };
-const createDeepInfra = () => { throw new Error("@ai-sdk/deepinfra not available in this build"); };
-const createCerebras = () => { throw new Error("@ai-sdk/cerebras not available in this build"); };
-const createCohere = () => { throw new Error("@ai-sdk/cohere not available in this build"); };
-const createGateway = () => { throw new Error("@ai-sdk/gateway not available in this build"); };
-const createTogetherAI = () => { throw new Error("@ai-sdk/togetherai not available in this build"); };
-const createPerplexity = () => { throw new Error("@ai-sdk/perplexity not available in this build"); };
-EOF
+    # Install provider-utils 4.0.1 FIRST (needed by all the packages)
+    tar -xzf "${aiSdkPackages.providerUtils}"
+    mv package provider-utils
+
+    tar -xzf "${aiSdkPackages.provider}"
+    mv package provider
+
+    # Now install the actual AI SDK packages
+    tar -xzf "${aiSdkPackages.groq}"
+    mv package groq
+    tar -xzf "${aiSdkPackages.deepinfra}"
+    mv package deepinfra
+    tar -xzf "${aiSdkPackages.cerebras}"
+    mv package cerebras
+    tar -xzf "${aiSdkPackages.cohere}"
+    mv package cohere
+    tar -xzf "${aiSdkPackages.gateway}"
+    mv package gateway
+    tar -xzf "${aiSdkPackages.togetherai}"
+    mv package togetherai
+    tar -xzf "${aiSdkPackages.perplexity}"
+    mv package perplexity
+    cd ../..
+
+    # Add @vercel/oidc dependency for gateway
+    mkdir -p ./node_modules/@vercel
+    cd ./node_modules/@vercel
+    rm -rf oidc
+    tar -xzf "${aiSdkPackages.vercelOidc}"
+    mv package oidc
+    cd ../..
+
+    # Add @standard-schema/spec
+    mkdir -p ./node_modules/@standard-schema
+    cd ./node_modules/@standard-schema
+    rm -rf spec
+    tar -xzf "${aiSdkPackages.standardSchemaSpec}"
+    mv package spec
+    cd ../..
+
+    # Add eventsource-parser at root
+    cd ./node_modules
+    rm -rf eventsource-parser
+    tar -xzf "${aiSdkPackages.eventsourceParser}"
+    mv package eventsource-parser
+
+    cd ..
+
+    # Update the .bun directory to use provider-utils 4.0.1
+    rm -rf ./node_modules/.bun/@ai-sdk+provider-utils@*
+    mkdir -p ./node_modules/.bun/@ai-sdk+provider-utils@4.0.1
+    ln -s ../../@ai-sdk/provider-utils ./node_modules/.bun/@ai-sdk+provider-utils@4.0.1/node_modules
     mkdir -p ./node_modules/@opencode-ai
     rm -f ./node_modules/@opencode-ai/{script,sdk,plugin}
     ln -s $(pwd)/../../packages/script ./node_modules/@opencode-ai/script
