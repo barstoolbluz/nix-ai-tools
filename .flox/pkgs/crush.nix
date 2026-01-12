@@ -1,74 +1,55 @@
 {
-  lib,
-  stdenvNoCC,
-  fetchurl,
+  fetchFromGitHub,
+  buildGoModule,
+  callPackage,
   installShellFiles,
-  autoPatchelfHook,
-  gcc-unwrapped,
+  lib,
 }:
 let
+  # Use our custom Go 1.25.5
+  go_1_25_5 = callPackage ./go_1_25_5.nix {};
+
+  # Override buildGoModule to use our Go 1.25.5
+  buildGoModuleWithGo1255 = buildGoModule.override {
+    go = go_1_25_5;
+  };
+in
+buildGoModuleWithGo1255 rec {
+  pname = "crush";
   version = "0.31.0";
 
-  sources = {
-    x86_64-linux = {
-      url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Linux_x86_64.tar.gz";
-      hash = "sha256-SO7Zps7rTQVp553K8mRbsiGaw7KeIRE6jOBTkThuqUs=";
-    };
-    aarch64-linux = {
-      url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Linux_arm64.tar.gz";
-      hash = "sha256-7jTXfwk0RcfTu0GKZteDti9oi7ajLpWUWMOPrkudYNA=";
-    };
-    x86_64-darwin = {
-      url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Darwin_x86_64.tar.gz";
-      hash = "sha256-PJ1xPvfNN/FHe9OgjJEGuMu9734cQJzvi8ElgDqg10k=";
-    };
-    aarch64-darwin = {
-      url = "https://github.com/charmbracelet/crush/releases/download/v${version}/crush_${version}_Darwin_arm64.tar.gz";
-      hash = "sha256-JEKTH4KtiPbHYAQqLfHSKlO6/U6yIIbXHQ/KYp1a1r8=";
-    };
+  src = fetchFromGitHub {
+    owner = "charmbracelet";
+    repo = "crush";
+    rev = "v${version}";
+    hash = "sha256-OhZIUKddDCpztl/hqrdzQNZC1327VofdN8CttwAdTrc=";
   };
 
-  source = sources.${stdenvNoCC.hostPlatform.system} or (throw "Unsupported system: ${stdenvNoCC.hostPlatform.system}");
-in
-stdenvNoCC.mkDerivation {
-  pname = "crush";
-  inherit version;
+  vendorHash = "sha256-/A7XsZRlK3pCPmXYm6dbyE8QFKXs9Yorks2x+cIbLwM=";
 
-  src = fetchurl source;
+  nativeBuildInputs = [ installShellFiles ];
 
-  nativeBuildInputs = [
-    installShellFiles
-  ] ++ lib.optionals stdenvNoCC.isLinux [
-    autoPatchelfHook
+  ldflags = [
+    "-s"
+    "-w"
+    "-X=github.com/charmbracelet/crush/internal/version.Version=v${version}"
   ];
 
-  buildInputs = lib.optionals stdenvNoCC.isLinux [
-    gcc-unwrapped.lib
-  ];
-
-  dontBuild = true;
-
-  installPhase = ''
-    runHook preInstall
-
-    install -Dm755 crush $out/bin/crush
-
-    # Install provided completions
+  postInstall = ''
+    # Generate shell completions
     installShellCompletion --cmd crush \
-      --bash completions/crush.bash \
-      --fish completions/crush.fish \
-      --zsh completions/crush.zsh
+      --bash <($out/bin/crush completion bash) \
+      --fish <($out/bin/crush completion fish) \
+      --zsh <($out/bin/crush completion zsh)
 
-    # Install man page
-    install -Dm644 manpages/crush.1.gz $out/share/man/man1/crush.1.gz
-
-    # Install JSON schema if present
+    # Install JSON schema file if present
     if [ -f crush.json ]; then
       install -Dm644 crush.json $out/share/crush/crush.json
     fi
-
-    runHook postInstall
   '';
+
+  # Tests need API keys
+  doCheck = false;
 
   meta = with lib; {
     description = "The glamourous AI coding agent for your favourite terminal";
@@ -76,6 +57,5 @@ stdenvNoCC.mkDerivation {
     license = licenses.mit;
     maintainers = with maintainers; [ zimbatm ];
     mainProgram = "crush";
-    sourceProvenance = with sourceTypes; [ binaryNativeCode ];
   };
 }
