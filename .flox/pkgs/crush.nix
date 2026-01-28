@@ -18,16 +18,16 @@ let
 in
 buildGoModuleWithGo1255 rec {
   pname = "crush";
-  version = "0.32.0";
+  version = "0.36.0";
 
   src = fetchFromGitHub {
     owner = "charmbracelet";
     repo = "crush";
     rev = "v${version}";
-    hash = "sha256-OEVktVn7OK7Pv4c0faYVf5eoZlJ1P5GpzSRtLsEZhVI=";
+    hash = "sha256-xitCvejiVts9kkvtcVwh/zaeWIzDj0jx9xQMh2h+9Ns=";
   };
 
-  vendorHash = "sha256-CYl7DNXUt6/+ROEIxs9Xwmn34T/xM4ncu7f4jQItpAs=";
+  vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
 
   nativeBuildInputs = [ installShellFiles ];
 
