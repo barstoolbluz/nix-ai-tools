@@ -72,7 +72,6 @@ flox publish -o myorg cursor-agent
 
 ### Already in Flox Catalog
 These tools are already available via `flox install`:
-- claude-code
 - claude-code-acp
 - claude-code-router
 - opencode
@@ -83,8 +82,9 @@ These tools are already available via `flox install`:
 - amp-cli
 - qwen-code
 
-### Packaged Here (16 tools)
+### Packaged Here (17 tools)
 These tools are **not** in the Flox catalog and are packaged in `.flox/pkgs/`:
+- claude-code (binary from Anthropic's distribution)
 - cursor-agent
 - droid
 - forge
