@@ -6,12 +6,13 @@ This repository provides [Flox](https://flox.dev)-compatible Nix expressions tha
 
 ## What's Here
 
-The `.flox/pkgs/` directory contains build recipes for 20 AI coding tools:
+The `.flox/pkgs/` directory contains build recipes for 21 AI coding tools:
 
 | Package | Description |
 |---------|-------------|
 | `backlog-md` | Project collaboration between humans and AI agents |
 | `catnip` | Developer environment for agentic programming |
+| `claude-code` | Anthropic's agentic coding tool for the terminal |
 | `claude-code-acp` | ACP-compatible agent powered by Claude Code SDK |
 | `claude-desktop` | Claude Desktop AI assistant |
 | `claudebox` | Sandboxed environment for Claude Code |
