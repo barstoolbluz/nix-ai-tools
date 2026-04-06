@@ -40,7 +40,14 @@ stdenv.mkDerivation {
   installPhase = ''
     runHook preInstall
     mkdir -p $out/bin
-    install -m755 catnip $out/bin/catnip
+    if [ -f catnip ]; then
+      install -m755 catnip $out/bin/catnip
+    elif [ -f Catnip.app/Contents/MacOS/catnip ]; then
+      install -m755 Catnip.app/Contents/MacOS/catnip $out/bin/catnip
+    else
+      echo "Could not find catnip binary" >&2
+      exit 1
+    fi
     runHook postInstall
   '';
 
