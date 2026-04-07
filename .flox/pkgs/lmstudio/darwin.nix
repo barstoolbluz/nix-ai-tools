@@ -33,7 +33,7 @@ stdenv.mkDerivation {
     substituteInPlace "$indexJs" --replace-quiet "'/Applications'" "'/'"
 
     # Re-sign the app bundle after patching
-    codesign --force --deep --sign - "$out/Applications/LM Studio.app"
+    /usr/bin/codesign --force --sign - "$out/Applications/LM Studio.app"
 
     runHook postInstall
   '';
