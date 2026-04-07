@@ -47,6 +47,13 @@ stdenv.mkDerivation {
     openssl
   ];
 
+  # aarch64-linux binary links against OpenSSL 1.1 (EOL/insecure in nixpkgs)
+  # while x86_64-linux uses OpenSSL 3. Ignore the 1.1 deps so the package builds.
+  autoPatchelfIgnoreMissingDeps = [
+    "libssl.so.1.1"
+    "libcrypto.so.1.1"
+  ];
+
   dontBuild = true;
 
   installPhase = ''
