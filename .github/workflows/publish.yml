@@ -94,7 +94,9 @@ jobs:
             exit 1
           fi
           mkdir -p "$HOME/.config/flox"
-          echo "floxhub_token = \"$FLOX_AUTH_TOKEN\"" > "$HOME/.config/flox/flox.toml"
+          # Write token on a single line (secrets may contain trailing newlines)
+          token=$(echo "$FLOX_AUTH_TOKEN" | tr -d '\n\r')
+          printf 'floxhub_token = "%s"\n' "$token" > "$HOME/.config/flox/flox.toml"
 
       - name: Verify auth
         run: flox auth status
