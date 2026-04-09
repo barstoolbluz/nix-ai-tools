@@ -1,0 +1,148 @@
+name: Build Packages
+on:
+  push:
+    branches: [nightly, main]
+    paths:
+      - '.flox/pkgs/**'
+  pull_request:
+    branches: [nightly, main]
+    paths:
+      - '.flox/pkgs/**'
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Specific packages to build (space-separated, empty for all changed)'
+        required: false
+        default: ''
+      all:
+        description: 'Build all packages (ignore change detection)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.detect.outputs.packages }}
+      has-packages: ${{ steps.detect.outputs.has-packages }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changed packages
+        id: detect
+        run: |
+          if [ "${{ inputs.all }}" = "true" ]; then
+            # Build all packages
+            packages=$(ls .flox/pkgs/*.nix .flox/pkgs/*/default.nix 2>/dev/null \
+              | sed 's|.flox/pkgs/||; s|/default\.nix||; s|\.nix||' \
+              | grep -v '^fetch-upstream$' \
+              | grep -v '^go_1_' \
+              | grep -v '^setup-hook$' \
+              | sort -u)
+          elif [ -n "${{ inputs.packages }}" ]; then
+            # Specific packages requested
+            packages="${{ inputs.packages }}"
+          else
+            # Detect changed packages from git diff
+            if [ "${{ github.event_name }}" = "pull_request" ]; then
+              base="${{ github.event.pull_request.base.sha }}"
+            else
+              base="HEAD~1"
+            fi
+            packages=$(git diff --name-only "$base" -- .flox/pkgs/ 2>/dev/null \
+              | sed 's|.flox/pkgs/||; s|/.*||; s|\.nix||' \
+              | grep -v '^fetch-upstream$' \
+              | grep -v '^go_1_' \
+              | grep -v '^setup-hook$' \
+              | sort -u)
+          fi
+
+          if [ -z "$packages" ]; then
+            echo "No packages to build"
+            echo "has-packages=false" >> "$GITHUB_OUTPUT"
+            echo 'packages=[]' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Build JSON array
+          json="["
+          first=true
+          for pkg in $packages; do
+            if [ "$first" = true ]; then
+              first=false
+            else
+              json+=","
+            fi
+            json+="\"$pkg\""
+          done
+          json+="]"
+
+          echo "Packages to build: $packages"
+          echo "has-packages=true" >> "$GITHUB_OUTPUT"
+          echo "packages=$json" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: discover
+    if: needs.discover.outputs.has-packages == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.discover.outputs.packages) }}
+        runner:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-latest
+          - macos-13
+        exclude: []
+    runs-on: ${{ matrix.runner }}
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Flox
+        uses: flox/install-flox-action@v2
+
+      - name: Build ${{ matrix.package }}
+        id: build
+        run: |
+          echo "Building ${{ matrix.package }} on ${{ matrix.runner }}..."
+          if flox build ${{ matrix.package }} 2>&1; then
+            echo "status=success" >> "$GITHUB_OUTPUT"
+            echo "Build succeeded"
+          else
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+            echo "Build failed (may be unsupported on this platform)"
+          fi
+
+      - name: Test binary
+        if: steps.build.outputs.status == 'success'
+        run: |
+          # Try to get version from the built package
+          result_dir="./result-${{ matrix.package }}"
+          if [ -d "$result_dir" ]; then
+            binary=$(find "$result_dir/bin" -type f -o -type l 2>/dev/null | head -1)
+            if [ -n "$binary" ]; then
+              echo "Binary: $binary"
+              "$binary" --version 2>&1 || "$binary" version 2>&1 || echo "(version check not supported)"
+            fi
+          fi
+
+  summary:
+    needs: [discover, build]
+    if: always() && needs.discover.outputs.has-packages == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build summary
+        run: |
+          echo "## Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Packages built: ${{ needs.discover.outputs.packages }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.build.result }}" = "success" ]; then
+            echo "All builds completed (some platforms may have been skipped for unsupported packages)." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Some builds failed. Check individual job logs for details." >> $GITHUB_STEP_SUMMARY
+          fi

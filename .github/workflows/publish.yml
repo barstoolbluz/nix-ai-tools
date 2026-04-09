@@ -1,0 +1,131 @@
+name: Publish Packages
+on:
+  workflow_run:
+    workflows: ["Build Packages"]
+    types: [completed]
+    branches: [nightly]
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Specific packages to publish (space-separated, empty for all changed)'
+        required: false
+        default: ''
+      all:
+        description: 'Publish all packages'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  discover:
+    # Only run on successful build workflow completion (or manual dispatch)
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.detect.outputs.packages }}
+      has-packages: ${{ steps.detect.outputs.has-packages }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: nightly
+          fetch-depth: 2
+
+      - name: Detect packages to publish
+        id: detect
+        run: |
+          if [ "${{ inputs.all }}" = "true" ]; then
+            packages=$(ls .flox/pkgs/*.nix .flox/pkgs/*/default.nix 2>/dev/null \
+              | sed 's|.flox/pkgs/||; s|/default\.nix||; s|\.nix||' \
+              | grep -v '^fetch-upstream$' \
+              | grep -v '^go_1_' \
+              | grep -v '^setup-hook$' \
+              | sort -u)
+          elif [ -n "${{ inputs.packages }}" ]; then
+            packages="${{ inputs.packages }}"
+          else
+            # Detect packages changed in the triggering workflow's commits
+            packages=$(git diff --name-only HEAD~1 -- .flox/pkgs/ 2>/dev/null \
+              | sed 's|.flox/pkgs/||; s|/.*||; s|\.nix||' \
+              | grep -v '^fetch-upstream$' \
+              | grep -v '^go_1_' \
+              | grep -v '^setup-hook$' \
+              | sort -u)
+          fi
+
+          if [ -z "$packages" ]; then
+            echo "No packages to publish"
+            echo "has-packages=false" >> "$GITHUB_OUTPUT"
+            echo 'packages=[]' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          json="["
+          first=true
+          for pkg in $packages; do
+            [ "$first" = true ] && first=false || json+=","
+            json+="\"$pkg\""
+          done
+          json+="]"
+
+          echo "Packages to publish: $packages"
+          echo "has-packages=true" >> "$GITHUB_OUTPUT"
+          echo "packages=$json" >> "$GITHUB_OUTPUT"
+
+  publish:
+    needs: discover
+    if: needs.discover.outputs.has-packages == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.discover.outputs.packages) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: nightly
+
+      - name: Install Flox
+        uses: flox/install-flox-action@v2
+
+      - name: Authenticate with FloxHub
+        env:
+          FLOXHUB_CLIENT_ID: ${{ secrets.FLOXHUB_CLIENT_ID }}
+          FLOXHUB_CLIENT_SECRET: ${{ secrets.FLOXHUB_CLIENT_SECRET }}
+        run: |
+          if [ -z "$FLOXHUB_CLIENT_ID" ] || [ -z "$FLOXHUB_CLIENT_SECRET" ]; then
+            echo "::error::FloxHub credentials not configured. Set FLOXHUB_CLIENT_ID and FLOXHUB_CLIENT_SECRET secrets."
+            exit 1
+          fi
+          flox auth login --client-id "$FLOXHUB_CLIENT_ID" --client-secret "$FLOXHUB_CLIENT_SECRET"
+
+      - name: Build ${{ matrix.package }}
+        run: flox build ${{ matrix.package }}
+
+      - name: Publish ${{ matrix.package }}
+        run: |
+          echo "Publishing ${{ matrix.package }}..."
+          if flox publish -o flox ${{ matrix.package }} 2>&1; then
+            echo "Published ${{ matrix.package }} successfully"
+          else
+            echo "::warning::Failed to publish ${{ matrix.package }}"
+            exit 1
+          fi
+
+  summary:
+    needs: [discover, publish]
+    if: always() && needs.discover.outputs.has-packages == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish summary
+        run: |
+          echo "## Publish Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Packages: ${{ needs.discover.outputs.packages }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.publish.result }}" = "success" ]; then
+            echo "All packages published successfully." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Some packages failed to publish. Check individual job logs." >> $GITHUB_STEP_SUMMARY
+          fi
