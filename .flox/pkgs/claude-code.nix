@@ -12,14 +12,14 @@
 }:
 
 let
-  version = "2.1.39";
+  version = "2.1.71";
 
   # Platform-specific hashes for the pre-built binaries
   hashes = {
-    x86_64-linux = "sha256-aOR3Wyk9leBtFoWBxSP8XBUjloF5Ip0xoCnyhbKs6v8=";
-    aarch64-linux = "sha256-j2bgKlvopiDihvbmNPtCS1rAZXMbBIrz10XPcZsseFE=";
-    x86_64-darwin = "sha256-LLokpBClIm+XULj+foPb6aYUhe+bDrKGsLAEOKqZDQU=";
-    aarch64-darwin = "sha256-2NeiuZamkQNqU5M6JZpTIlSkAJNK7kUuKJ4fREMCbYI=";
+    x86_64-linux = "sha256-YQAuX1xBkOmndb2c+Q5X//PwN5+yyO3GU6wJQqNHur0=";
+    aarch64-linux = "sha256-ribkpWVCOPCmhNX9mmv1kjIbBuuI6oNDQ7J18xDjm+o=";
+    x86_64-darwin = "sha256-qP8hACKGCxVn01+6WCLZvkp0xCKWLi4yw59BFnltV8g=";
+    aarch64-darwin = "sha256-89gSnsfdrxWMEOGT31RkIUmdabf0TsLwtnw/5U9gHLk=";
   };
 
   platformMap = {

@@ -8,7 +8,7 @@
   ripgrep,
 }:
 let
-  version = "0.26.2";
+  version = "0.94.1";
 
   # Map Nix platforms to Factory AI platform naming
   platformMap = {
@@ -35,10 +35,10 @@ let
 
   # Source hashes for each platform
   sources = {
-    "x86_64-linux" = "sha256-uY6H7fckgEDoHFLr9CljXSH8vgsej4u3xN0cW8AxqIo=";
-    "aarch64-linux" = "sha256-AHR5QDbAXYBPAzuPNI++PV3O/FNKTYEe5hOtHYO7itE=";
-    "x86_64-darwin" = "sha256-c50V1Ll/lfBYZKe1Qp12x6EzVEcX4tWSnclvl7vBnF0=";
-    "aarch64-darwin" = "sha256-OMrOKM39dNHpDH/tpf4OrwP4JQ6PVlHF4Bizt1cfDnQ=";
+    "x86_64-linux" = "sha256-VFhB5sC81zl+LhsEwwuDjl1AU6Mzmt0Ip+HhdDBt6pg=";
+    "aarch64-linux" = "sha256-HiqUeaSEDlmGJO4wZXbj3pTtzQKYqRWKj7iwn+I55z4=";
+    "x86_64-darwin" = "sha256-ht/R7T3Bd1frRAj6utwbDDeT+YgV/VWjycSTTdCCtN8=";
+    "aarch64-darwin" = "sha256-Ae3i1LWWyd0G4qwg+Ei6t2HRo1dnB0XXcI3CDKx1k4s=";
   };
 
   # Construct download URL
