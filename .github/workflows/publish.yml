@@ -3,7 +3,7 @@ on:
   workflow_run:
     workflows: ["Build Packages"]
     types: [completed]
-    branches: [nightly]
+    branches: [main]
   workflow_dispatch:
     inputs:
       packages:
@@ -29,7 +29,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: nightly
           fetch-depth: 2
 
       - name: Detect packages to publish
@@ -45,7 +44,6 @@ jobs:
           elif [ -n "${{ inputs.packages }}" ]; then
             packages="${{ inputs.packages }}"
           else
-            # Detect packages changed in the triggering workflow's commits
             packages=$(git diff --name-only HEAD~1 -- .flox/pkgs/ 2>/dev/null \
               | sed 's|.flox/pkgs/||; s|/.*||; s|\.nix||' \
               | grep -v '^fetch-upstream$' \
@@ -83,22 +81,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: nightly
 
       - name: Install Flox
         uses: flox/install-flox-action@v2
 
       - name: Authenticate with FloxHub
         env:
-          FLOXHUB_CLIENT_ID: ${{ secrets.FLOXHUB_CLIENT_ID }}
-          FLOXHUB_CLIENT_SECRET: ${{ secrets.FLOXHUB_CLIENT_SECRET }}
+          FLOX_AUTH_TOKEN: ${{ secrets.FLOX_AUTH_TOKEN }}
         run: |
-          if [ -z "$FLOXHUB_CLIENT_ID" ] || [ -z "$FLOXHUB_CLIENT_SECRET" ]; then
-            echo "::error::FloxHub credentials not configured. Set FLOXHUB_CLIENT_ID and FLOXHUB_CLIENT_SECRET secrets."
+          if [ -z "$FLOX_AUTH_TOKEN" ]; then
+            echo "::error::FLOX_AUTH_TOKEN secret not configured."
             exit 1
           fi
-          flox auth login --client-id "$FLOXHUB_CLIENT_ID" --client-secret "$FLOXHUB_CLIENT_SECRET"
+          # Write the token where flox expects it
+          mkdir -p "$HOME/.config/flox"
+          echo "$FLOX_AUTH_TOKEN" > "$HOME/.config/flox/floxhub_token"
+
+      - name: Verify auth
+        run: flox auth status
 
       - name: Build ${{ matrix.package }}
         run: flox build ${{ matrix.package }}
