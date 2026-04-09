@@ -93,9 +93,8 @@ jobs:
             echo "::error::FLOX_AUTH_TOKEN secret not configured."
             exit 1
           fi
-          # Write the token where flox expects it
           mkdir -p "$HOME/.config/flox"
-          echo "$FLOX_AUTH_TOKEN" > "$HOME/.config/flox/floxhub_token"
+          echo "floxhub_token = \"$FLOX_AUTH_TOKEN\"" > "$HOME/.config/flox/flox.toml"
 
       - name: Verify auth
         run: flox auth status
