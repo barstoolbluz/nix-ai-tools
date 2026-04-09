@@ -71,21 +71,22 @@ if [ -n "$pr_number" ]; then
     --body "$pr_body"
 else
   echo "Creating new PR"
-  # Build label arguments array
-  label_args=()
-  IFS=',' read -ra labels <<<"$pr_labels"
-  for label in "${labels[@]}"; do
-    # Trim whitespace from label
-    label=$(echo "$label" | xargs)
-    label_args+=(--label "$label")
-  done
 
   gh pr create \
     --title "$pr_title" \
     --body "$pr_body" \
     --base main \
-    --head "$branch" \
-    "${label_args[@]}"
+    --head "$branch"
+
+  # Try to add labels (ignore failures if labels don't exist)
+  pr_number=$(gh pr list --head "$branch" --json number --jq '.[0].number')
+  if [ -n "$pr_number" ] && [ -n "$pr_labels" ]; then
+    IFS=',' read -ra labels <<<"$pr_labels"
+    for label in "${labels[@]}"; do
+      label=$(echo "$label" | xargs)
+      gh pr edit "$pr_number" --add-label "$label" 2>/dev/null || echo "Note: Label '$label' not found, skipping"
+    done
+  fi
 
   # Store PR number for auto-merge
   pr_number=$(gh pr list --head "$branch" --json number --jq '.[0].number')
