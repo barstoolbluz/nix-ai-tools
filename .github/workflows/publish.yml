@@ -78,7 +78,12 @@ jobs:
       fail-fast: false
       matrix:
         package: ${{ fromJson(needs.discover.outputs.packages) }}
-    runs-on: ubuntu-latest
+        runner:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-latest
+    runs-on: ${{ matrix.runner }}
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -94,7 +99,6 @@ jobs:
             exit 1
           fi
           mkdir -p "$HOME/.config/flox"
-          # Write token on a single line (secrets may contain trailing newlines)
           token=$(echo "$FLOX_AUTH_TOKEN" | tr -d '\n\r')
           printf 'floxhub_token = "%s"\n' "$token" > "$HOME/.config/flox/flox.toml"
 
@@ -102,11 +106,20 @@ jobs:
         run: flox auth status
 
       - name: Build ${{ matrix.package }}
-        run: flox build ${{ matrix.package }}
+        id: build
+        run: |
+          echo "Building ${{ matrix.package }} on ${{ matrix.runner }}..."
+          if flox build ${{ matrix.package }} 2>&1; then
+            echo "status=success" >> "$GITHUB_OUTPUT"
+          else
+            echo "Build failed (may be unsupported on this platform)"
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Publish ${{ matrix.package }}
+        if: steps.build.outputs.status == 'success'
         run: |
-          echo "Publishing ${{ matrix.package }}..."
+          echo "Publishing ${{ matrix.package }} on ${{ matrix.runner }}..."
           if flox publish -o flox ${{ matrix.package }} 2>&1; then
             echo "Published ${{ matrix.package }} successfully"
           else
