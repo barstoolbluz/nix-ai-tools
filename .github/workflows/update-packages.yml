@@ -1,0 +1,105 @@
+name: Update Packages
+on:
+  schedule:
+    # Daily at 4 AM UTC (offset from update.yml at 2 AM/2 PM)
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Specific packages to check (space-separated, empty for all)'
+        required: false
+        default: ''
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.check.outputs.matrix }}
+      has-updates: ${{ steps.check.outputs.has-updates }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Check for new versions
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          PACKAGE_FILTER: ${{ inputs.packages }}
+        run: |
+          chmod +x .github/actions/version-check.sh
+          .github/actions/version-check.sh
+
+  update-package:
+    needs: version-check
+    if: needs.version-check.outputs.has-updates == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJson(needs.version-check.outputs.matrix) }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Setup Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Setup Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Set up git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Update ${{ matrix.name }}
+        id: update
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          chmod +x .github/actions/hash-update.sh
+          .github/actions/hash-update.sh \
+            "${{ matrix.name }}" \
+            "${{ matrix.new_version }}" \
+            "${{ matrix.full_rev }}"
+
+      - name: Revert on failure
+        if: failure()
+        run: git checkout -- .
+
+      - name: Create pull request
+        if: steps.update.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          PR_LABELS: 'dependencies,automated'
+          AUTO_MERGE: 'true'
+        run: |
+          chmod +x .github/actions/create-pr.sh
+          .github/actions/create-pr.sh \
+            "package" \
+            "${{ matrix.name }}" \
+            "${{ matrix.current_version }}" \
+            "${{ matrix.new_version }}"
+
+  summary:
+    needs: [version-check, update-package]
+    runs-on: ubuntu-latest
+    if: always() && needs.version-check.outputs.has-updates == 'true'
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## Package Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ contains(needs.update-package.result, 'failure') }}" = "true" ]; then
+            echo "Some package updates failed. Check individual job logs for details." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "All package updates completed." >> $GITHUB_STEP_SUMMARY
+          fi

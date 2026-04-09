@@ -1,0 +1,260 @@
+{
+  "$schema": "Package metadata for the auto-update pipeline. Each entry maps a package to its upstream source for version checking and hash updates.",
+  "packages": {
+    "backlog-md": {
+      "type": "github-binary",
+      "github": { "owner": "MrLesk", "repo": "Backlog.md" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/backlog-md.nix",
+      "fetch_type": "file",
+      "platforms": {
+        "x86_64-linux": "linux-x64-baseline",
+        "aarch64-linux": "linux-arm64",
+        "x86_64-darwin": "darwin-x64",
+        "aarch64-darwin": "darwin-arm64"
+      },
+      "url_template": "https://github.com/{owner}/{repo}/releases/download/v{version}/backlog-bun-{asset}"
+    },
+    "catnip": {
+      "type": "github-binary",
+      "github": { "owner": "wandb", "repo": "catnip" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/catnip.nix",
+      "fetch_type": "archive",
+      "platforms": {
+        "x86_64-linux": "linux_amd64",
+        "aarch64-linux": "linux_arm64",
+        "x86_64-darwin": "darwin_amd64",
+        "aarch64-darwin": "darwin_arm64"
+      },
+      "url_template": "https://github.com/{owner}/{repo}/releases/download/v{version}/catnip_{version}_{asset}.tar.gz"
+    },
+    "claude-code": {
+      "type": "custom-binary",
+      "github": { "owner": "anthropics", "repo": "claude-code" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/claude-code.nix",
+      "fetch_type": "file",
+      "platforms": {
+        "x86_64-linux": "linux-x64",
+        "aarch64-linux": "linux-arm64",
+        "x86_64-darwin": "darwin-x64",
+        "aarch64-darwin": "darwin-arm64"
+      },
+      "url_template": "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/{version}/{asset}/claude"
+    },
+    "claude-squad": {
+      "type": "github-binary",
+      "github": { "owner": "smtg-ai", "repo": "claude-squad" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/claude-squad.nix",
+      "fetch_type": "archive",
+      "platforms": {
+        "x86_64-linux": "linux_amd64",
+        "aarch64-linux": "linux_arm64",
+        "x86_64-darwin": "darwin_amd64",
+        "aarch64-darwin": "darwin_arm64"
+      },
+      "url_template": "https://github.com/{owner}/{repo}/releases/download/v{version}/claude-squad_{version}_{asset}.tar.gz"
+    },
+    "claurst": {
+      "type": "github-binary",
+      "github": { "owner": "Kuberwastaken", "repo": "claurst" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/claurst.nix",
+      "fetch_type": "archive",
+      "platforms": {
+        "x86_64-linux": "linux-x86_64",
+        "aarch64-linux": "linux-aarch64",
+        "x86_64-darwin": "macos-x86_64",
+        "aarch64-darwin": "macos-aarch64"
+      },
+      "url_template": "https://github.com/{owner}/{repo}/releases/download/v{version}/claurst-{asset}.tar.gz"
+    },
+    "codex-monitor": {
+      "type": "desktop-app",
+      "github": { "owner": "Dimillian", "repo": "CodexMonitor" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/codex-monitor/default.nix",
+      "fetch_type": "file",
+      "platforms": {
+        "x86_64-linux": "amd64.AppImage",
+        "aarch64-linux": "aarch64.AppImage",
+        "aarch64-darwin": "aarch64.dmg"
+      },
+      "url_template_linux": "https://github.com/{owner}/{repo}/releases/download/v{version}/Codex.Monitor_{version}_{asset}",
+      "url_template_darwin": "https://github.com/{owner}/{repo}/releases/download/v{version}/CodexMonitor_{version}_{asset}"
+    },
+    "crush": {
+      "type": "github-source",
+      "github": { "owner": "charmbracelet", "repo": "crush" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/crush.nix",
+      "fetch_type": "source",
+      "has_vendor_hash": true
+    },
+    "eca": {
+      "type": "github-binary",
+      "github": { "owner": "editor-code-assistant", "repo": "eca" },
+      "tag_pattern": "{version}",
+      "version_file": ".flox/pkgs/eca.nix",
+      "fetch_type": "archive",
+      "platforms": {
+        "x86_64-linux": "linux-amd64",
+        "aarch64-linux": "linux-aarch64",
+        "x86_64-darwin": "macos-amd64",
+        "aarch64-darwin": "macos-aarch64"
+      },
+      "url_template": "https://github.com/{owner}/{repo}/releases/download/{version}/eca-native-{asset}.zip"
+    },
+    "goose-cli": {
+      "type": "github-binary",
+      "github": { "owner": "block", "repo": "goose" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/goose-cli.nix",
+      "fetch_type": "archive",
+      "platforms": {
+        "x86_64-linux": "x86_64-unknown-linux-gnu",
+        "aarch64-linux": "aarch64-unknown-linux-gnu",
+        "x86_64-darwin": "x86_64-apple-darwin",
+        "aarch64-darwin": "aarch64-apple-darwin"
+      },
+      "url_template": "https://github.com/{owner}/{repo}/releases/download/v{version}/goose-{asset}.tar.bz2"
+    },
+    "ironclaw": {
+      "type": "github-binary",
+      "github": { "owner": "nearai", "repo": "ironclaw" },
+      "tag_pattern": "ironclaw-v{version}",
+      "version_file": ".flox/pkgs/ironclaw.nix",
+      "fetch_type": "archive",
+      "platforms": {
+        "x86_64-linux": "x86_64-unknown-linux-gnu",
+        "aarch64-linux": "aarch64-unknown-linux-gnu",
+        "x86_64-darwin": "x86_64-apple-darwin",
+        "aarch64-darwin": "aarch64-apple-darwin"
+      },
+      "url_template": "https://github.com/{owner}/{repo}/releases/download/ironclaw-v{version}/ironclaw-{asset}.tar.gz"
+    },
+    "mux": {
+      "type": "desktop-app",
+      "github": { "owner": "coder", "repo": "mux" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/mux/default.nix",
+      "fetch_type": "file",
+      "platforms": {
+        "x86_64-linux": "x86_64.AppImage",
+        "aarch64-linux": "arm64.AppImage",
+        "x86_64-darwin": "x64.dmg",
+        "aarch64-darwin": "arm64.dmg"
+      },
+      "url_template_linux": "https://github.com/{owner}/{repo}/releases/download/v{version}/mux-{version}-{asset}",
+      "url_template_darwin": "https://github.com/{owner}/{repo}/releases/download/v{version}/mux-{version}-{asset}"
+    },
+    "nanocoder": {
+      "type": "github-source",
+      "github": { "owner": "Nano-Collective", "repo": "nanocoder" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/nanocoder.nix",
+      "fetch_type": "source",
+      "has_vendor_hash": false,
+      "has_npm_deps_hash": true
+    },
+    "nullclaw": {
+      "type": "github-binary",
+      "github": { "owner": "nullclaw", "repo": "nullclaw" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/nullclaw.nix",
+      "fetch_type": "file",
+      "platforms": {
+        "x86_64-linux": "linux-x86_64",
+        "aarch64-linux": "linux-aarch64",
+        "x86_64-darwin": "macos-x86_64",
+        "aarch64-darwin": "macos-aarch64"
+      },
+      "url_template": "https://github.com/{owner}/{repo}/releases/download/v{version}/nullclaw-{asset}.bin"
+    },
+    "opencode": {
+      "type": "github-binary",
+      "github": { "owner": "sst", "repo": "opencode" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/opencode.nix",
+      "fetch_type": "archive",
+      "platforms": {
+        "x86_64-linux": "linux-x64",
+        "aarch64-linux": "linux-arm64",
+        "x86_64-darwin": "darwin-x64",
+        "aarch64-darwin": "darwin-arm64"
+      },
+      "url_template_linux": "https://github.com/{owner}/{repo}/releases/download/v{version}/opencode-{asset}.tar.gz",
+      "url_template_darwin": "https://github.com/{owner}/{repo}/releases/download/v{version}/opencode-{asset}.zip"
+    },
+    "openhands": {
+      "type": "github-binary",
+      "github": { "owner": "OpenHands", "repo": "OpenHands-CLI" },
+      "tag_pattern": "{version}",
+      "version_file": ".flox/pkgs/openhands.nix",
+      "fetch_type": "file",
+      "platforms": {
+        "x86_64-linux": "linux-x86_64",
+        "aarch64-linux": "linux-arm64",
+        "x86_64-darwin": "macos-intel",
+        "aarch64-darwin": "macos-arm64"
+      },
+      "url_template": "https://github.com/{owner}/{repo}/releases/download/{version}/openhands-{asset}"
+    },
+    "zeroclaw": {
+      "type": "github-binary",
+      "github": { "owner": "zeroclaw-labs", "repo": "zeroclaw" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/zeroclaw.nix",
+      "fetch_type": "archive",
+      "platforms": {
+        "x86_64-linux": "x86_64-unknown-linux-gnu",
+        "aarch64-linux": "aarch64-unknown-linux-gnu",
+        "aarch64-darwin": "aarch64-apple-darwin"
+      },
+      "url_template": "https://github.com/{owner}/{repo}/releases/download/v{version}/zeroclaw-{asset}.tar.gz"
+    },
+    "code-package": {
+      "type": "github-source",
+      "github": { "owner": "just-every", "repo": "code" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/code-package.nix",
+      "fetch_type": "source",
+      "has_vendor_hash": true
+    },
+    "droid": {
+      "type": "custom-binary",
+      "skip": true,
+      "skip_reason": "No public version API — downloads hosted at downloads.factory.ai",
+      "github": { "owner": "factory-ai", "repo": "droid" },
+      "version_file": ".flox/pkgs/droid.nix"
+    },
+    "lmstudio": {
+      "type": "desktop-app",
+      "skip": true,
+      "skip_reason": "No public GitHub releases — downloads hosted at installers.lmstudio.ai",
+      "version_file": ".flox/pkgs/lmstudio/default.nix"
+    },
+    "upstream": {
+      "type": "upstream",
+      "github": { "owner": "numtide", "repo": "nix-ai-tools" },
+      "version_file": ".flox/pkgs/fetch-upstream.nix",
+      "delegates": [
+        "claude-code-acp",
+        "claude-desktop",
+        "code",
+        "codex",
+        "codex-acp",
+        "coderabbit-cli",
+        "cursor-agent",
+        "forge",
+        "groq-code-cli",
+        "kilocode-cli",
+        "openspec",
+        "openskills",
+        "spec-kit"
+      ]
+    }
+  }
+}
