@@ -29,6 +29,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # For workflow_run events, check out the exact commit that triggered
+          # the build workflow. Without this, checkout grabs the latest default
+          # branch, which can drift if other PRs merge while the build is running.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 2
 
       - name: Detect packages to publish
@@ -98,6 +102,10 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Pin to the same commit the discover job used so we build/publish
+          # the exact version that was validated by the build workflow.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Install Flox
         uses: flox/install-flox-action@v2
