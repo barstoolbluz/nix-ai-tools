@@ -12,7 +12,7 @@
   gcc-unwrapped,
 }:
 let
-  version = "0.4.3";
+  version = "0.4.3-1";
 
   bootstrap = ''
     #!/usr/bin/env bash
