@@ -4,7 +4,7 @@
   fetchurl,
 }:
 let
-  version = "2026.4.7";
+  version = "2026.4.9";
 
   platformMap = {
     "x86_64-linux" = "linux-x86_64";
@@ -16,10 +16,10 @@ let
   currentPlatform = platformMap.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
 
   sources = {
-    "x86_64-linux" = "sha256-ebEb+qm75r9xGpOh7SKoqQGjoyQ44kYeoDtliHwrf1I=";
-    "aarch64-linux" = "sha256-EOLZKDWJu733YodkNyKaHON0bCcW/y2hkJwO25P8VYA=";
-    "x86_64-darwin" = "sha256-NMCTb3PclUOddM+qb6I1em4xmxYcNApPNkpHjlP8T6k=";
-    "aarch64-darwin" = "sha256-0sYmSE4flF9qmPiJurOFvpNaeH6RQYMoD0wnG+23VZo=";
+    "x86_64-linux" = "sha256-4O3mt+mixwqOd1/RSDhV/cik5WG4zod5G/657n5mOlM=";
+    "aarch64-linux" = "sha256-hmwZLmccYaZSTZJbcP6A7Z6OImACZJCGDcTCF1IbuYs=";
+    "x86_64-darwin" = "sha256-3ek4tyMmSv8eOtnAAcjVLPbGnte2VrL9x1dKGisD5g8=";
+    "aarch64-darwin" = "sha256-rcnSawazsl5urq23HZsoo1xA5sPfmuBZWa6UvqRv2jc=";
   };
 
   src = fetchurl {
