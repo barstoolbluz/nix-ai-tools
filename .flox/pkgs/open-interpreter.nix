@@ -12,7 +12,7 @@
   gcc-unwrapped,
 }:
 let
-  version = "0.4.3-5";
+  version = "0.4.3-6";
   pypiVersion = "0.4.3";
 
   bootstrap = ''
@@ -45,7 +45,7 @@ let
     fi
 
     # Suppress pkg_resources deprecation warning (upstream issue)
-    export PYTHONWARNINGS="ignore::UserWarning:pkg_resources"
+    export PYTHONWARNINGS="ignore::UserWarning:interpreter.core.utils.system_debug_info"
     exec "$OI_VENV/bin/interpreter" "$@"
   '';
 in
