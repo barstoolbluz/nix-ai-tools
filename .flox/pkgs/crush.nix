@@ -8,15 +8,15 @@
   lib,
 }:
 let
-  # Use our custom Go 1.26.0
-  go_1_26_0 = callPackage ./go_1_26_0.nix {};
+  # Use our custom Go 1.26.1
+  go_1_26_1 = callPackage ./go_1_26_1.nix {};
 
-  # Override buildGoModule to use our Go 1.26.0
-  buildGoModuleWithGo1260 = buildGoModule.override {
-    go = go_1_26_0;
+  # Override buildGoModule to use our Go 1.26.1
+  buildGoModuleWithGo1261 = buildGoModule.override {
+    go = go_1_26_1;
   };
 in
-buildGoModuleWithGo1260 rec {
+buildGoModuleWithGo1261 rec {
   pname = "crush";
   version = "0.56.0";
 
@@ -27,7 +27,7 @@ buildGoModuleWithGo1260 rec {
     hash = "sha256-JtqgEI09kRg/uW/2fxMQL5+cmODO2y6aW1e5OXTH2LY=";
   };
 
-  vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+  vendorHash = "sha256-n5pqIxN2TwiEWd3ZzFHqYSIKYPsMYAip3kDRx4ajuck=";
 
   nativeBuildInputs = [ installShellFiles ];
 
