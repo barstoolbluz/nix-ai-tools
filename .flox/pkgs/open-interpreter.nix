@@ -12,7 +12,8 @@
   gcc-unwrapped,
 }:
 let
-  version = "0.4.3-1";
+  version = "0.4.3-2";
+  pypiVersion = "0.4.3";
 
   bootstrap = ''
     #!/usr/bin/env bash
@@ -31,7 +32,7 @@ let
       echo "Installing open-interpreter $OI_VERSION..." >&2
       mkdir -p "$OI_HOME"
       uv venv --python python3.12 "$OI_VENV" 2>/dev/null
-      uv pip install --python "$OI_VENV/bin/python" "open-interpreter==$OI_VERSION" "setuptools<81" >&2
+      uv pip install --python "$OI_VENV/bin/python" "open-interpreter==${pypiVersion}" "setuptools<81" >&2
       echo "$OI_VERSION" > "$OI_STAMP"
       echo "Done." >&2
     fi
