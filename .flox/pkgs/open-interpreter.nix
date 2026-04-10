@@ -1,6 +1,6 @@
 # Open Interpreter - bootstrap wrapper
 # Installs open-interpreter via uv into a persistent venv on first run.
-# The venv lives at ~/.local/share/open-interpreter/venv and is reused.
+# Uses $FLOX_ENV_CACHE/open-interpreter inside Flox, else ~/.local/share/open-interpreter.
 {
   lib,
   stdenv,
@@ -18,7 +18,7 @@ let
     #!/usr/bin/env bash
     set -euo pipefail
 
-    OI_HOME="''${XDG_DATA_HOME:-$HOME/.local/share}/open-interpreter"
+    OI_HOME="''${FLOX_ENV_CACHE:-''${XDG_DATA_HOME:-$HOME/.local/share}}/open-interpreter"
     OI_VENV="$OI_HOME/venv"
     OI_VERSION="${version}"
     OI_STAMP="$OI_HOME/.version"
