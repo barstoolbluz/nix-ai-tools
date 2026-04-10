@@ -4,6 +4,6 @@
 fetchFromGitHub {
   owner = "numtide";
   repo = "nix-ai-tools";
-  rev = "b91b0e1583091847cf4f8a8fcaad92d66227abfb";
-  hash = "sha256-WrZCxhx82aBBQb6CMJwXimgOIcv9Eytl1zFsjfxiWSc=";
+  rev = "bc514c88404cbaa8467046aabf751fa781a8652f";
+  hash = "sha256-XnJYW5CuYPVXXVTJF+00ggJLiAwMSZSxZ2Q1oAFF7xo=";
 }
