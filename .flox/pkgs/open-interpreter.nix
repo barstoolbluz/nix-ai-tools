@@ -12,7 +12,7 @@
   gcc-unwrapped,
 }:
 let
-  version = "0.4.3-3";
+  version = "0.4.3-4";
   pypiVersion = "0.4.3";
 
   bootstrap = ''
@@ -26,6 +26,12 @@ let
 
     # Isolate from any outer Python environment
     unset PYTHONPATH PYTHONHOME VIRTUAL_ENV
+
+    # Force reinstall with RESET=1
+    if [ "''${RESET:-}" = "1" ]; then
+      echo "Resetting open-interpreter venv..." >&2
+      rm -rf "$OI_VENV" "$OI_STAMP"
+    fi
 
     # Create or update the venv if needed
     if [ ! -f "$OI_STAMP" ] || [ "$(cat "$OI_STAMP")" != "$OI_VERSION" ]; then
