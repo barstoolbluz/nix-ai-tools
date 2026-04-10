@@ -101,11 +101,12 @@ jobs:
     runs-on: ${{ matrix.runner }}
     continue-on-error: true
     steps:
+      # Checkout default branch (main) — flox publish requires a branch with
+      # a remote, not a detached HEAD. discover has already determined which
+      # packages to publish; we build them from the latest main, which may
+      # have advanced past the triggering commit (rare race condition, but the
+      # package versions only move forward so this is safe).
       - uses: actions/checkout@v4
-        with:
-          # Pin to the same commit the discover job used so we build/publish
-          # the exact version that was validated by the build workflow.
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Install Flox
         uses: flox/install-flox-action@v2
