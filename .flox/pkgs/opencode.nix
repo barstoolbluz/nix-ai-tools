@@ -8,6 +8,7 @@
   fetchurl,
   makeWrapper,
   autoPatchelfHook,
+  unzip,
   fzf,
   ripgrep,
 }:
@@ -52,6 +53,8 @@ stdenv.mkDerivation {
     makeWrapper
   ] ++ lib.optionals stdenv.isLinux [
     autoPatchelfHook
+  ] ++ lib.optionals stdenv.isDarwin [
+    unzip
   ];
 
   buildInputs = lib.optionals stdenv.isLinux [
