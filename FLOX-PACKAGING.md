@@ -1,6 +1,6 @@
 # Flox Packaging for nix-ai-tools
 
-This fork adds Flox packaging support for AI coding tools from the upstream [numtide/nix-ai-tools](https://github.com/numtide/nix-ai-tools) repository.
+This fork adds Flox packaging support for AI coding tools from the upstream [numtide/llm-agents.nix](https://github.com/numtide/llm-agents.nix) repository (formerly `numtide/nix-ai-tools`).
 
 ## Repository Structure
 
@@ -28,7 +28,7 @@ git clone https://github.com/barstoolbluz/nix-ai-tools.git
 cd nix-ai-tools
 
 # Add upstream remote
-git remote add upstream https://github.com/numtide/nix-ai-tools.git
+git remote add upstream https://github.com/numtide/llm-agents.nix.git
 
 # Fetch upstream packages (first time)
 git fetch upstream main
@@ -137,4 +137,4 @@ git commit -m "Fix broken-tool Flox packaging"
 
 - [FLOX.md](FLOX.md) - Complete Flox usage guide
 - [CLAUDE.md](CLAUDE.md) - Claude Code development instructions
-- [Upstream repo](https://github.com/numtide/nix-ai-tools) - Original package repository
+- [Upstream repo](https://github.com/numtide/llm-agents.nix) - Original package repository (formerly `numtide/nix-ai-tools`)

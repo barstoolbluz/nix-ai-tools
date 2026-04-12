@@ -238,7 +238,7 @@
     },
     "upstream": {
       "type": "upstream",
-      "github": { "owner": "numtide", "repo": "nix-ai-tools" },
+      "github": { "owner": "numtide", "repo": "llm-agents.nix" },
       "version_file": ".flox/pkgs/fetch-upstream.nix",
       "delegates": [
         "claude-code-acp",

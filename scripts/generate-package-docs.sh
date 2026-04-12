@@ -84,7 +84,7 @@ for package in "${sorted_packages[@]}"; do
   if [ "$homepage" != "null" ]; then
     echo "- **Homepage**: $homepage"
   fi
-  echo "- **Usage**: \`nix run github:numtide/nix-ai-tools#$package -- --help\`"
+  echo "- **Usage**: \`nix run github:numtide/llm-agents.nix#$package -- --help\`"
 
   # Check for package-specific README
   if [ -f "packages/$package/README.md" ]; then
