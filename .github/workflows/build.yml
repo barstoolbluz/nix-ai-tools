@@ -58,7 +58,7 @@ jobs:
             # Expand dependency files into the packages that use them
             expanded=""
             if echo "$changed" | grep -q '^fetch-upstream$'; then
-              expanded=$(printf '%s\n' claude-code-acp claude-desktop code codex codex-acp coderabbit-cli cursor-agent forge groq-code-cli kilocode-cli openskills spec-kit)
+              expanded=$(printf '%s\n' claude-code-acp code codex codex-acp coderabbit-cli cursor-agent forge kilocode-cli openskills spec-kit)
             fi
             if echo "$changed" | grep -q '^go_1_'; then
               expanded=$(printf '%s\n%s' "$expanded" crush)

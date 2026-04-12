@@ -6,23 +6,23 @@ All builds are published to the [`flox/`](https://hub.flox.dev/catalog/flox) cat
 
 ## Contents
 
-35 packages across five categories:
+33 packages across five categories:
 
-### Upstream-delegating (12)
+### Upstream-delegating (10)
 
 Thin wrappers that import package definitions from numtide's repo. Version tracking happens by bumping `rev` + `hash` in `.flox/pkgs/fetch-upstream.nix` (automated — see [Automated updates](#automated-updates) below).
+
+Some upstream packages rely on numtide-local helpers (`fetchNpmDepsWithPackuments`, `versionCheckHomeHook`, `wrapBuddy`) that don't exist in nixpkgs. We provide those via `.flox/pkgs/fetch-upstream-helpers.nix`, which callPackages them from the upstream source tree and threads them through to affected wrappers.
 
 | Package | Description |
 |---------|-------------|
 | `claude-code-acp` | ACP (Agent Client Protocol) bridge for Claude Code |
-| `claude-desktop` | Anthropic's Claude Desktop application |
 | `code` | just-every's fork of Codex with multi-provider LLM support |
 | `codex` | OpenAI's Codex terminal coding agent |
 | `codex-acp` | ACP bridge for OpenAI Codex |
 | `coderabbit-cli` | AI-powered code review CLI from CodeRabbit |
 | `cursor-agent` | Headless coding agent from the Cursor IDE |
 | `forge` | AI-enhanced terminal development environment |
-| `groq-code-cli` | Coding CLI backed by Groq's fast inference |
 | `kilocode-cli` | Kilocode's open-source AI coding agent |
 | `openskills` | Framework for composable agent skills |
 | `spec-kit` | GitHub's Spec-Driven Development toolkit |
