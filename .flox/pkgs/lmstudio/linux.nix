@@ -4,6 +4,7 @@
   lib,
   stdenv,
   graphicsmagick,
+  makeWrapper,
   version,
   url,
   hash,
@@ -48,11 +49,36 @@ appimageTools.wrapType2 {
       --replace-fail 'Exec=AppRun --no-sandbox %U' 'Exec=lm-studio'
 
     # lms cli tool
-    install -m 755 ${appimageContents}/resources/app/.webpack/lms $out/bin/
+    install -m 755 ${appimageContents}/resources/app/.webpack/lms $out/bin/.lms-unwrapped
 
     patchelf --set-interpreter "${stdenv.cc.bintools.dynamicLinker}" \
     --set-rpath "${lib.getLib stdenv.cc.cc}/lib:${lib.getLib stdenv.cc.cc}/lib64:$out/lib:${
       lib.makeLibraryPath [ (lib.getLib stdenv.cc.cc) ]
-    }" $out/bin/lms
+    }" $out/bin/.lms-unwrapped
+
+    # GPU detection wrapper — lms segfaults on systems without a supported GPU
+    # (upstream bug). Gracefully exit with a message instead of crashing.
+    cat > $out/bin/lms << 'WRAPPER'
+    #!/usr/bin/env bash
+    # LM Studio requires NVIDIA (CUDA) or a Vulkan-capable discrete GPU.
+    # The lms binary segfaults at startup on systems without one.
+    has_gpu=false
+    if command -v nvidia-smi &>/dev/null && nvidia-smi &>/dev/null; then
+      has_gpu=true
+    elif command -v vulkaninfo &>/dev/null && vulkaninfo --summary 2>/dev/null | grep -q 'deviceType.*DISCRETE'; then
+      has_gpu=true
+    fi
+
+    if [ "$has_gpu" = false ]; then
+      echo "LM Studio requires a supported GPU (NVIDIA with CUDA, or discrete AMD/Intel with Vulkan)." >&2
+      echo "No compatible GPU detected. The lms binary will segfault without one." >&2
+      echo "" >&2
+      echo "To bypass this check: LMS_SKIP_GPU_CHECK=1 lms [args...]" >&2
+      [ "''${LMS_SKIP_GPU_CHECK:-}" = "1" ] || exit 1
+    fi
+
+    exec "$(dirname "$0")/.lms-unwrapped" "$@"
+    WRAPPER
+    chmod +x $out/bin/lms
   '';
 }
