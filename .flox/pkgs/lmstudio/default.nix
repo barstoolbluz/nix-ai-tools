@@ -4,7 +4,8 @@
   callPackage,
 }:
 let
-  version = "0.4.10-1";
+  upstreamVersion = "0.4.10-1";
+  version = "${upstreamVersion}+fa40d6b";
 
   meta = {
     description = "LM Studio - Desktop app for experimenting with local and open-source LLMs";
@@ -21,15 +22,15 @@ let
 
   sources = {
     "x86_64-linux" = {
-      url = "https://installers.lmstudio.ai/linux/x64/${version}/LM-Studio-${version}-x64.AppImage";
+      url = "https://installers.lmstudio.ai/linux/x64/${upstreamVersion}/LM-Studio-${upstreamVersion}-x64.AppImage";
       hash = "sha256-FC7rPA1CxTaYakpSSpjxYiPETW8+N5QmsmUib3RHD0o=";
     };
     "aarch64-linux" = {
-      url = "https://installers.lmstudio.ai/linux/arm64/${version}/LM-Studio-${version}-arm64.AppImage";
+      url = "https://installers.lmstudio.ai/linux/arm64/${upstreamVersion}/LM-Studio-${upstreamVersion}-arm64.AppImage";
       hash = "sha256-fo9jUmEtqu8bkfL1/v84IAp3RG0ua5g4hgieszhWOuM=";
     };
     "aarch64-darwin" = {
-      url = "https://installers.lmstudio.ai/darwin/arm64/${version}/LM-Studio-${version}-arm64.dmg";
+      url = "https://installers.lmstudio.ai/darwin/arm64/${upstreamVersion}/LM-Studio-${upstreamVersion}-arm64.dmg";
       hash = "sha256-LgaxbTXmiKyI/T8D+K+SLVzUgiQzOq/6JKEDwktrrDU=";
     };
   };
