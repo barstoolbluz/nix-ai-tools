@@ -5,6 +5,7 @@
   stdenv,
   graphicsmagick,
   makeWrapper,
+  xorg-server,
   version,
   url,
   hash,
@@ -80,5 +81,88 @@ appimageTools.wrapType2 {
     exec "$out/bin/.lms-unwrapped" "\$@"
     WRAPPER
     chmod +x $out/bin/lms
+
+    # --- lms-service: headless LM Studio service launcher ---
+    cat > $out/bin/lms-service << LMS_SERVICE
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Ensure lms can find the Electron binary
+    config_dir="\''${HOME}/.lmstudio/.internal"
+    mkdir -p "\$config_dir"
+    echo '{"installLocation":"$out/bin/lm-studio"}' > "\$config_dir/app-install-location.json"
+
+    # Find a free display number for Xvfb
+    display_num=99
+    while [ -e "/tmp/.X\$display_num-lock" ] && [ "\$display_num" -lt 200 ]; do
+      display_num=\$((display_num + 1))
+    done
+    export DISPLAY=":\$display_num"
+
+    # Start Xvfb (Electron requires X even in headless mode)
+    ${xorg-server}/bin/Xvfb "\$DISPLAY" -screen 0 1024x768x24 -nolisten tcp &
+    xvfb_pid=\$!
+    cleanup() { kill "\$xvfb_pid" 2>/dev/null || true; }
+    trap cleanup EXIT
+
+    # Give Xvfb a moment to start
+    sleep 0.5
+
+    # Clean stale daemon state
+    $out/bin/lms daemon down 2>/dev/null || true
+
+    # Set up logging
+    log_dir="\''${LMS_LOG_DIR:-\$HOME/.lmstudio/logs}"
+    mkdir -p "\$log_dir"
+
+    echo "Starting LM Studio service on DISPLAY=\$DISPLAY (Xvfb PID \$xvfb_pid)..."
+    exec $out/bin/lm-studio --run-as-service >> "\$log_dir/lm-studio.log" 2>&1
+    LMS_SERVICE
+    chmod +x $out/bin/lms-service
+
+    # --- lms-models: list loaded models ---
+    cat > $out/bin/lms-models << 'LMS_MODELS'
+    #!/usr/bin/env bash
+    host="''${LMS_HOST:-127.0.0.1}"
+    port="''${LMS_PORT:-1234}"
+    url="http://$host:$port/v1/models"
+
+    response=$(curl -sf "$url" 2>/dev/null) || {
+      echo "Error: Could not reach LM Studio at $url" >&2
+      exit 1
+    }
+
+    if command -v jq &>/dev/null; then
+      echo "$response" | jq -r '.data[] | "\(.id)  (\(.object // "model"))"' 2>/dev/null || echo "$response"
+    else
+      echo "$response"
+    fi
+    LMS_MODELS
+    chmod +x $out/bin/lms-models
+
+    # --- lmstudio-health: health check ---
+    cat > $out/bin/lmstudio-health << 'LMS_HEALTH'
+    #!/usr/bin/env bash
+    host="''${LMS_HOST:-127.0.0.1}"
+    port="''${LMS_PORT:-1234}"
+    url="http://$host:$port/v1/models"
+
+    response=$(curl -sf "$url" 2>/dev/null) || {
+      echo "UNHEALTHY: LM Studio not responding at $url" >&2
+      exit 1
+    }
+
+    echo "HEALTHY: LM Studio responding at $url"
+    if command -v jq &>/dev/null; then
+      models=$(echo "$response" | jq -r '.data[].id' 2>/dev/null)
+      if [ -n "$models" ]; then
+        echo "Loaded models:"
+        echo "$models" | sed 's/^/  - /'
+      else
+        echo "No models currently loaded."
+      fi
+    fi
+    LMS_HEALTH
+    chmod +x $out/bin/lmstudio-health
   '';
 }
