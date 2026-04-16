@@ -48,17 +48,14 @@ appimageTools.wrapType2 {
     substituteInPlace $out/share/applications/lm-studio.desktop \
       --replace-fail 'Exec=AppRun --no-sandbox %U' 'Exec=lm-studio'
 
-    # lms cli tool
+    # lms cli tool — this is a Bun single-executable binary with an embedded
+    # JS bundle. patchelf corrupts embedded data blobs by shifting ELF section
+    # offsets, and invoking via ld-linux breaks /proc/self/exe resolution that
+    # Bun needs to locate its bundle. We use LD_LIBRARY_PATH instead.
     install -m 755 ${appimageContents}/resources/app/.webpack/lms $out/bin/.lms-unwrapped
 
-    patchelf --set-interpreter "${stdenv.cc.bintools.dynamicLinker}" \
-    --set-rpath "${lib.getLib stdenv.cc.cc}/lib:${lib.getLib stdenv.cc.cc}/lib64:$out/lib:${
-      lib.makeLibraryPath [ (lib.getLib stdenv.cc.cc) ]
-    }" $out/bin/.lms-unwrapped
-
-    # GPU detection wrapper — lms segfaults on systems without a supported GPU
-    # (upstream bug). Gracefully exit with a message instead of crashing.
-    cat > $out/bin/lms << 'WRAPPER'
+    # GPU detection + dynamic linker wrapper
+    cat > $out/bin/lms << WRAPPER
     #!/usr/bin/env bash
     # LM Studio requires NVIDIA (CUDA) or a Vulkan-capable discrete GPU.
     # The lms binary segfaults at startup on systems without one.
@@ -69,15 +66,18 @@ appimageTools.wrapType2 {
       has_gpu=true
     fi
 
-    if [ "$has_gpu" = false ]; then
+    if [ "\$has_gpu" = false ]; then
       echo "LM Studio requires a supported GPU (NVIDIA with CUDA, or discrete AMD/Intel with Vulkan)." >&2
       echo "No compatible GPU detected. The lms binary will segfault without one." >&2
       echo "" >&2
       echo "To bypass this check: LMS_SKIP_GPU_CHECK=1 lms [args...]" >&2
-      [ "''${LMS_SKIP_GPU_CHECK:-}" = "1" ] || exit 1
+      [ "\''${LMS_SKIP_GPU_CHECK:-}" = "1" ] || exit 1
     fi
 
-    exec "$(dirname "$0")/.lms-unwrapped" "$@"
+    export LD_LIBRARY_PATH="${lib.getLib stdenv.cc.cc}/lib:${lib.getLib stdenv.cc.cc}/lib64:$out/lib:${
+        lib.makeLibraryPath [ (lib.getLib stdenv.cc.cc) ]
+      }\''${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
+    exec "$out/bin/.lms-unwrapped" "\$@"
     WRAPPER
     chmod +x $out/bin/lms
   '';
