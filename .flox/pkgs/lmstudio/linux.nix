@@ -30,6 +30,58 @@ appimageTools.wrapType2 {
 
   extraPkgs = pkgs: [ pkgs.ocl-icd ];
 
+  # Make host NVIDIA driver libraries available inside the bwrap sandbox.
+  # buildFHSEnv creates an isolated filesystem — host GPU libraries are not
+  # available.  We can't bind-mount entire host lib dirs (e.g. /usr/lib/
+  # x86_64-linux-gnu) because the host's glibc/libstdc++ would conflict with
+  # the Nix-provided versions and cause segfaults.  Instead, extraPreBwrapCmds
+  # creates a filtered directory with ONLY nvidia/cuda libraries (via hard
+  # links) under ~/.cache/lmstudio-nvidia-drivers, which is visible in the
+  # sandbox via the /home bind mount.  The profile then appends it to
+  # LD_LIBRARY_PATH.
+  extraPreBwrapCmds = ''
+    __nvidia_cache="$HOME/.cache/lmstudio-nvidia-drivers"
+    rm -rf "$__nvidia_cache" 2>/dev/null || true
+    mkdir -p "$__nvidia_cache"
+    for pattern in libnvidia libcuda libEGL_nvidia libGLX_nvidia libvdpau_nvidia libnvcuvid libcudadebugger; do
+      for dir in /usr/lib/x86_64-linux-gnu /usr/lib/aarch64-linux-gnu /usr/lib64 /usr/lib /run/opengl-driver/lib; do
+        for f in "$dir"/$pattern*.so*; do
+          [ -f "$f" ] && ln -f "$f" "$__nvidia_cache/" 2>/dev/null || cp -f "$f" "$__nvidia_cache/" 2>/dev/null || true
+        done
+      done
+    done
+    # Also copy nvidia-smi if available
+    for smi in /usr/bin/nvidia-smi; do
+      [ -x "$smi" ] && cp -f "$smi" "$__nvidia_cache/" 2>/dev/null || true
+    done
+  '';
+
+  profile = ''
+    __nvidia_cache="$HOME/.cache/lmstudio-nvidia-drivers"
+    if [ -d "$__nvidia_cache" ]; then
+      export LD_LIBRARY_PATH="''${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}$__nvidia_cache"
+      export PATH="$PATH:$__nvidia_cache"
+    fi
+  '';
+
+  # Expose NVIDIA GPU devices and sysfs info to the bwrap sandbox.
+  # --dev-bind-try / --ro-bind-try are no-ops when paths don't exist,
+  # so CPU-only systems are handled safely.
+  extraBwrapArgs = [
+    # GPU device nodes
+    "--dev-bind-try" "/dev/nvidia0" "/dev/nvidia0"
+    "--dev-bind-try" "/dev/nvidia1" "/dev/nvidia1"
+    "--dev-bind-try" "/dev/nvidiactl" "/dev/nvidiactl"
+    "--dev-bind-try" "/dev/nvidia-uvm" "/dev/nvidia-uvm"
+    "--dev-bind-try" "/dev/nvidia-uvm-tools" "/dev/nvidia-uvm-tools"
+    "--dev-bind-try" "/dev/nvidia-caps" "/dev/nvidia-caps"
+    "--dev-bind-try" "/dev/nvidia-modeset" "/dev/nvidia-modeset"
+    "--dev-bind-try" "/dev/dri" "/dev/dri"
+    # GPU sysfs info (PCI device enumeration, temp sensors, etc.)
+    "--ro-bind-try" "/sys/bus/pci" "/sys/bus/pci"
+    "--ro-bind-try" "/sys/devices/pci0000:00" "/sys/devices/pci0000:00"
+  ];
+
   extraInstallCommands = ''
     mkdir -p $out/share/applications
 
