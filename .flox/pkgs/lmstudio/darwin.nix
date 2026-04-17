@@ -67,26 +67,10 @@ stdenv.mkDerivation {
     chmod +x $out/bin/lms
 
     # --- lms-service: headless LM Studio service launcher (no Xvfb on macOS) ---
-    cat > $out/bin/lms-service << LMS_SERVICE
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # Ensure lms can find the Electron binary
-    config_dir="\''${HOME}/.lmstudio/.internal"
-    mkdir -p "\$config_dir"
-    echo '{"installLocation":"$out/bin/lm-studio"}' > "\$config_dir/app-install-location.json"
-
-    # Clean stale daemon state
-    $out/bin/lms daemon down 2>/dev/null || true
-
-    # Set up logging
-    log_dir="\''${LMS_LOG_DIR:-\$HOME/.lmstudio/logs}"
-    mkdir -p "\$log_dir"
-
-    echo "Starting LM Studio service..."
-    exec $out/bin/lm-studio --run-as-service >> "\$log_dir/lm-studio.log" 2>&1
-    LMS_SERVICE
-    chmod +x $out/bin/lms-service
+    install -m 755 ${./lms-service-darwin.sh} $out/bin/lms-service
+    substituteInPlace $out/bin/lms-service \
+      --replace-fail '@lms@' "$out/bin/.lms-unwrapped" \
+      --replace-fail '@lm_studio@' "$out/bin/lm-studio"
 
     # --- lms-models: list loaded models ---
     cat > $out/bin/lms-models << 'LMS_MODELS'
