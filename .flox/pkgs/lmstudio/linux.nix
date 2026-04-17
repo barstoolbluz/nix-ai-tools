@@ -102,7 +102,11 @@ appimageTools.wrapType2 {
     # Start Xvfb (Electron requires X even in headless mode)
     ${xorg-server}/bin/Xvfb "\$DISPLAY" -screen 0 1024x768x24 -nolisten tcp &
     xvfb_pid=\$!
-    cleanup() { kill "\$xvfb_pid" 2>/dev/null || true; }
+    cleanup() {
+      $out/bin/lms server stop 2>/dev/null || true
+      $out/bin/lms daemon down 2>/dev/null || true
+      kill "\$xvfb_pid" 2>/dev/null || true
+    }
     trap cleanup EXIT
 
     # Give Xvfb a moment to start
@@ -115,8 +119,23 @@ appimageTools.wrapType2 {
     log_dir="\''${LMS_LOG_DIR:-\$HOME/.lmstudio/logs}"
     mkdir -p "\$log_dir"
 
-    echo "Starting LM Studio service on DISPLAY=\$DISPLAY (Xvfb PID \$xvfb_pid)..."
-    exec $out/bin/lm-studio --run-as-service >> "\$log_dir/lm-studio.log" 2>&1
+    # Start LM Studio app (bwrap daemonizes on Linux, parent exits)
+    $out/bin/lm-studio --run-as-service >> "\$log_dir/lm-studio.log" 2>&1
+
+    # Wait for app to initialize, then start the API server
+    attempts=0
+    while [ "\$attempts" -lt 30 ]; do
+      if $out/bin/lms server start >> "\$log_dir/lm-studio.log" 2>&1; then
+        echo "LM Studio API server started on DISPLAY=\$DISPLAY"
+        break
+      fi
+      attempts=\$((attempts + 1))
+      sleep 2
+    done
+
+    # Keep alive — Xvfb is our direct child; when the service is stopped,
+    # the EXIT trap fires and cleans up
+    wait \$xvfb_pid
     LMS_SERVICE
     chmod +x $out/bin/lms-service
 
