@@ -83,61 +83,12 @@ appimageTools.wrapType2 {
     chmod +x $out/bin/lms
 
     # --- lms-service: headless LM Studio service launcher ---
-    cat > $out/bin/lms-service << LMS_SERVICE
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # Ensure lms can find the Electron binary
-    config_dir="\''${HOME}/.lmstudio/.internal"
-    mkdir -p "\$config_dir"
-    echo '{"installLocation":"$out/bin/lm-studio"}' > "\$config_dir/app-install-location.json"
-
-    # Find a free display number for Xvfb
-    display_num=99
-    while [ -e "/tmp/.X\$display_num-lock" ] && [ "\$display_num" -lt 200 ]; do
-      display_num=\$((display_num + 1))
-    done
-    export DISPLAY=":\$display_num"
-
-    # Start Xvfb (Electron requires X even in headless mode)
-    ${xorg-server}/bin/Xvfb "\$DISPLAY" -screen 0 1024x768x24 -nolisten tcp &
-    xvfb_pid=\$!
-    cleanup() {
-      $out/bin/lms server stop 2>/dev/null || true
-      $out/bin/lms daemon down 2>/dev/null || true
-      kill "\$xvfb_pid" 2>/dev/null || true
-    }
-    trap cleanup EXIT
-
-    # Give Xvfb a moment to start
-    sleep 0.5
-
-    # Clean stale daemon state
-    $out/bin/lms daemon down 2>/dev/null || true
-
-    # Set up logging
-    log_dir="\''${LMS_LOG_DIR:-\$HOME/.lmstudio/logs}"
-    mkdir -p "\$log_dir"
-
-    # Start LM Studio app (bwrap daemonizes on Linux, parent exits)
-    $out/bin/lm-studio --run-as-service >> "\$log_dir/lm-studio.log" 2>&1
-
-    # Wait for app to initialize, then start the API server
-    attempts=0
-    while [ "\$attempts" -lt 30 ]; do
-      if $out/bin/lms server start >> "\$log_dir/lm-studio.log" 2>&1; then
-        echo "LM Studio API server started on DISPLAY=\$DISPLAY"
-        break
-      fi
-      attempts=\$((attempts + 1))
-      sleep 2
-    done
-
-    # Keep alive — Xvfb is our direct child; when the service is stopped,
-    # the EXIT trap fires and cleans up
-    wait \$xvfb_pid
-    LMS_SERVICE
-    chmod +x $out/bin/lms-service
+    install -m 755 ${./lms-service.sh} $out/bin/lms-service
+    substituteInPlace $out/bin/lms-service \
+      --replace-fail '@lms@' "$out/bin/.lms-unwrapped" \
+      --replace-fail '@lm_studio@' "$out/bin/lm-studio" \
+      --replace-fail '@xvfb@' "${xorg-server}/bin/Xvfb" \
+      --replace-fail '@lib_path@' "${lib.getLib stdenv.cc.cc}/lib:${lib.getLib stdenv.cc.cc}/lib64:$out/lib:${lib.makeLibraryPath [ (lib.getLib stdenv.cc.cc) ]}"
 
     # --- lms-models: list loaded models ---
     cat > $out/bin/lms-models << 'LMS_MODELS'
