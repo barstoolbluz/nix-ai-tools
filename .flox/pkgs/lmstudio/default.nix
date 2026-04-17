@@ -5,7 +5,7 @@
 }:
 let
   upstreamVersion = "0.4.10-1";
-  version = "${upstreamVersion}+4fe63cb";
+  version = "${upstreamVersion}+daa9947";
 
   meta = {
     description = "LM Studio - Desktop app for experimenting with local and open-source LLMs";
