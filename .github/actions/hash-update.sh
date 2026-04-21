@@ -290,15 +290,26 @@ update_version_only() {
     if [ -n "$release_name" ]; then
       semver=$(echo "$release_name" | grep -oP 'v\K[0-9]+\.[0-9]+\.[0-9]+' | head -1) || true
       if [ -n "$semver" ]; then
-        sed -i "0,/version = \"[^\"]*\"/{s/version = \"[^\"]*\"/version = \"$semver\"/}" "$nix_file"
-        echo "Updated version to $semver (from release name: $release_name)"
+        # Update upstreamVersion if present, otherwise version
+        if grep -q 'upstreamVersion = "' "$nix_file"; then
+          sed -i "s|upstreamVersion = \"[^\"]*\"|upstreamVersion = \"$semver\"|" "$nix_file"
+          echo "Updated upstreamVersion to $semver (from release name: $release_name)"
+        else
+          sed -i "0,/version = \"[^\"]*\"/{s/version = \"[^\"]*\"/version = \"$semver\"/}" "$nix_file"
+          echo "Updated version to $semver (from release name: $release_name)"
+        fi
         return
       fi
     fi
     echo "Warning: could not extract semver from release name, leaving version unchanged"
   else
-    sed -i "0,/version = \"[^\"]*\"/{s/version = \"[^\"]*\"/version = \"$NEW_VERSION\"/}" "$nix_file"
-    echo "Updated version to $NEW_VERSION"
+    if grep -q 'upstreamVersion = "' "$nix_file"; then
+      sed -i "s|upstreamVersion = \"[^\"]*\"|upstreamVersion = \"$NEW_VERSION\"|" "$nix_file"
+      echo "Updated upstreamVersion to $NEW_VERSION"
+    else
+      sed -i "0,/version = \"[^\"]*\"/{s/version = \"[^\"]*\"/version = \"$NEW_VERSION\"/}" "$nix_file"
+      echo "Updated version to $NEW_VERSION"
+    fi
   fi
 }
 

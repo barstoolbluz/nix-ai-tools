@@ -14,8 +14,9 @@
   gcc-unwrapped,
 }:
 let
-  version = "0.10.0";
+  upstreamVersion = "0.10.0";
   tag = "2026.4.16";
+  version = "${upstreamVersion}+57cbb83";
 
   bootstrap = ''
     #!/usr/bin/env bash
