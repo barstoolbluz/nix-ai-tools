@@ -262,6 +262,13 @@ update_source() {
   fi
 }
 
+# --- Handler: version-only (no hashes to update) ---
+update_version_only() {
+  echo "Version-only update (no hashes)..."
+  sed -i "0,/version = \"[^\"]*\"/{s/version = \"[^\"]*\"/version = \"$NEW_VERSION\"/}" "$nix_file"
+  echo "Updated version to $NEW_VERSION in $version_file"
+}
+
 # Dispatch based on package type
 case "$pkg_type" in
   upstream)
@@ -272,6 +279,9 @@ case "$pkg_type" in
     ;;
   github-source)
     update_source
+    ;;
+  version-only)
+    update_version_only
     ;;
   *)
     echo "Error: unknown package type '$pkg_type'"

@@ -107,6 +107,12 @@
       },
       "url_template": "https://github.com/{owner}/{repo}/releases/download/{version}/eca-native-{asset}.zip"
     },
+    "hermes-agent": {
+      "type": "version-only",
+      "github": { "owner": "NousResearch", "repo": "hermes-agent" },
+      "tag_pattern": "v{version}",
+      "version_file": ".flox/pkgs/hermes-agent.nix"
+    },
     "goose-cli": {
       "type": "github-binary",
       "github": { "owner": "block", "repo": "goose" },

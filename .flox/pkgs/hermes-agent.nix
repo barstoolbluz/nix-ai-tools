@@ -14,7 +14,7 @@
   gcc-unwrapped,
 }:
 let
-  version = "0.10.0";
+  version = "2026.4.16";
 
   bootstrap = ''
     #!/usr/bin/env bash
@@ -28,6 +28,7 @@ let
 
     # Isolate from any outer Python environment
     unset PYTHONPATH PYTHONHOME VIRTUAL_ENV
+    export UV_LINK_MODE=copy
 
     # Force reinstall with RESET=1 or --reset flag
     if [ "''${RESET:-}" = "1" ] || [ "''${1:-}" = "--reset" ]; then
@@ -43,16 +44,11 @@ let
 
       # Clone or update the repo
       if [ -d "$HERMES_REPO/.git" ]; then
-        git -C "$HERMES_REPO" fetch --depth 1 origin "v$HERMES_VERSION" 2>/dev/null || \
-          git -C "$HERMES_REPO" fetch --depth 1 origin "v2026.4.16" 2>/dev/null || true
-        git -C "$HERMES_REPO" checkout FETCH_HEAD 2>/dev/null || true
+        git -C "$HERMES_REPO" fetch --depth 1 origin "v$HERMES_VERSION"
+        git -C "$HERMES_REPO" checkout FETCH_HEAD
       else
         rm -rf "$HERMES_REPO"
         git clone --depth 1 --branch "v$HERMES_VERSION" \
-          https://github.com/NousResearch/hermes-agent.git "$HERMES_REPO" 2>/dev/null || \
-        git clone --depth 1 --branch "v2026.4.16" \
-          https://github.com/NousResearch/hermes-agent.git "$HERMES_REPO" 2>/dev/null || \
-        git clone --depth 1 \
           https://github.com/NousResearch/hermes-agent.git "$HERMES_REPO"
       fi
 
@@ -71,7 +67,8 @@ let
       echo "Done." >&2
     fi
 
-    exec "$HERMES_VENV/bin/hermes" "$@"
+    trap 'echo ""; exit 130' INT
+    "$HERMES_VENV/bin/hermes" "$@"
   '';
 in
 stdenv.mkDerivation {
