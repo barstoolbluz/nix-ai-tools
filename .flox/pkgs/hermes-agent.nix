@@ -14,7 +14,8 @@
   gcc-unwrapped,
 }:
 let
-  version = "2026.4.16";
+  version = "0.10.0";
+  tag = "2026.4.16";
 
   bootstrap = ''
     #!/usr/bin/env bash
@@ -23,7 +24,7 @@ let
     HERMES_HOME="''${FLOX_ENV_CACHE:-''${XDG_DATA_HOME:-$HOME/.local/share}}/hermes-agent"
     HERMES_VENV="$HERMES_HOME/venv"
     HERMES_REPO="$HERMES_HOME/repo"
-    HERMES_VERSION="${version}"
+    HERMES_TAG="${tag}"
     HERMES_STAMP="$HERMES_HOME/.version"
 
     # Isolate from any outer Python environment
@@ -38,17 +39,17 @@ let
     fi
 
     # Create or update the venv if needed
-    if [ ! -f "$HERMES_STAMP" ] || [ "$(cat "$HERMES_STAMP")" != "$HERMES_VERSION" ]; then
-      echo "Installing hermes-agent $HERMES_VERSION..." >&2
+    if [ ! -f "$HERMES_STAMP" ] || [ "$(cat "$HERMES_STAMP")" != "$HERMES_TAG" ]; then
+      echo "Installing hermes-agent $HERMES_TAG..." >&2
       mkdir -p "$HERMES_HOME"
 
       # Clone or update the repo
       if [ -d "$HERMES_REPO/.git" ]; then
-        git -C "$HERMES_REPO" fetch --depth 1 origin "v$HERMES_VERSION"
+        git -C "$HERMES_REPO" fetch --depth 1 origin "v$HERMES_TAG"
         git -C "$HERMES_REPO" checkout FETCH_HEAD
       else
         rm -rf "$HERMES_REPO"
-        git clone --depth 1 --branch "v$HERMES_VERSION" \
+        git clone --depth 1 --branch "v$HERMES_TAG" \
           https://github.com/NousResearch/hermes-agent.git "$HERMES_REPO"
       fi
 
@@ -63,7 +64,7 @@ let
         (cd "$HERMES_REPO" && npm install --no-fund --no-audit) >&2 2>/dev/null || true
       fi
 
-      echo "$HERMES_VERSION" > "$HERMES_STAMP"
+      echo "$HERMES_TAG" > "$HERMES_STAMP"
       echo "Done." >&2
     fi
 

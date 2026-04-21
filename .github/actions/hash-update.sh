@@ -265,8 +265,41 @@ update_source() {
 # --- Handler: version-only (no hashes to update) ---
 update_version_only() {
   echo "Version-only update (no hashes)..."
-  sed -i "0,/version = \"[^\"]*\"/{s/version = \"[^\"]*\"/version = \"$NEW_VERSION\"/}" "$nix_file"
-  echo "Updated version to $NEW_VERSION in $version_file"
+
+  # Check if package has a separate tag field (e.g., hermes-agent uses semver
+  # version + calver tag). If so, update the tag from the GitHub release tag
+  # and extract the semver from the release name.
+  if grep -q 'tag = "' "$nix_file"; then
+    local owner repo release_name semver
+    owner=$(jq -r ".packages.\"$PKG\".github.owner" "$METADATA")
+    repo=$(jq -r ".packages.\"$PKG\".github.repo" "$METADATA")
+    local tag_pattern
+    tag_pattern=$(jq -r ".packages.\"$PKG\".tag_pattern" "$METADATA")
+    local prefix="${tag_pattern%%\{version\}*}"
+
+    # Update the tag field (stores version without prefix, e.g., "2026.4.16")
+    sed -i "s|tag = \"[^\"]*\"|tag = \"$NEW_VERSION\"|" "$nix_file"
+    echo "Updated tag to $NEW_VERSION"
+
+    # Reconstruct the full git tag for API lookup
+    local full_tag="${prefix}${NEW_VERSION}"
+
+    # Try to extract semver from release name (e.g., "Hermes Agent v0.10.0 (2026.4.16)")
+    release_name=$(curl -sf "https://api.github.com/repos/$owner/$repo/releases/tags/$full_tag" \
+      | jq -r '.name // empty' 2>/dev/null) || true
+    if [ -n "$release_name" ]; then
+      semver=$(echo "$release_name" | grep -oP 'v\K[0-9]+\.[0-9]+\.[0-9]+' | head -1) || true
+      if [ -n "$semver" ]; then
+        sed -i "0,/version = \"[^\"]*\"/{s/version = \"[^\"]*\"/version = \"$semver\"/}" "$nix_file"
+        echo "Updated version to $semver (from release name: $release_name)"
+        return
+      fi
+    fi
+    echo "Warning: could not extract semver from release name, leaving version unchanged"
+  else
+    sed -i "0,/version = \"[^\"]*\"/{s/version = \"[^\"]*\"/version = \"$NEW_VERSION\"/}" "$nix_file"
+    echo "Updated version to $NEW_VERSION"
+  fi
 }
 
 # Dispatch based on package type

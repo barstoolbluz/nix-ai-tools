@@ -6,7 +6,7 @@ All builds are published to the [`flox/`](https://hub.flox.dev/catalog/flox) cat
 
 ## Contents
 
-33 packages across five categories:
+34 packages across five categories:
 
 ### Upstream-delegating (10)
 
@@ -61,13 +61,14 @@ Built from source using `buildGoModule`, `rustPlatform.buildRustPackage`, or `bu
 | `crush` | Charm's glamourous terminal AI coding agent (requires vendored Go 1.26.1) |
 | `nanocoder` | Community-built local-first coding agent (pnpm / Bun) |
 
-### Local derivations — bootstrap wrappers (2)
+### Local derivations — bootstrap wrappers (3)
 
 These don't build the underlying tool — they provide a wrapper that sets up a runtime environment on first invocation. Useful for tools with complex dependency graphs that fight Nix's hermeticity.
 
 | Package | Description |
 |---------|-------------|
 | `claudebox` | Sandboxed shell environment for Claude Code (bubblewrap on Linux, seatbelt on macOS) |
+| `hermes-agent` | Self-improving AI agent from Nous Research; installs into a `uv`-managed venv on first run |
 | `open-interpreter` | Natural-language interface for computers; installs into a `uv`-managed venv on first run |
 
 ### Nixpkgs with override (1)

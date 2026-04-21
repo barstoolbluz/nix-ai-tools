@@ -111,7 +111,8 @@
       "type": "version-only",
       "github": { "owner": "NousResearch", "repo": "hermes-agent" },
       "tag_pattern": "v{version}",
-      "version_file": ".flox/pkgs/hermes-agent.nix"
+      "version_file": ".flox/pkgs/hermes-agent.nix",
+      "version_field": "tag"
     },
     "goose-cli": {
       "type": "github-binary",

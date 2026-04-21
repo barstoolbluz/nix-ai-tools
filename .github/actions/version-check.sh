@@ -20,14 +20,15 @@ fi
 PACKAGE_FILTER="${PACKAGE_FILTER:-}"
 
 # Extract the current version from a .nix file
+# Optional second arg: field name (default "version")
 get_current_version() {
   local file="$REPO_ROOT/$1"
+  local field="${2:-version}"
   if [ ! -f "$file" ]; then
     echo ""
     return
   fi
-  # Match: version = "..." at any indentation
-  grep -oP 'version\s*=\s*"\K[^"]+' "$file" | head -1
+  grep -oP "${field}"'\s*=\s*"\K[^"]+' "$file" | head -1
 }
 
 # Extract the latest version from a GitHub release tag
@@ -125,9 +126,10 @@ for pkg in $package_names; do
   repo=$(jq -r ".packages.\"$pkg\".github.repo" "$METADATA")
   tag_pattern=$(jq -r ".packages.\"$pkg\".tag_pattern" "$METADATA")
 
-  current_version=$(get_current_version "$version_file")
+  version_field=$(jq -r ".packages.\"$pkg\".version_field // \"version\"" "$METADATA")
+  current_version=$(get_current_version "$version_file" "$version_field")
   if [ -z "$current_version" ]; then
-    echo "ERROR $pkg — could not read version from $version_file"
+    echo "ERROR $pkg — could not read $version_field from $version_file"
     errors=$((errors + 1))
     continue
   fi
