@@ -72,26 +72,6 @@ stdenv.mkDerivation {
       --replace-fail '@lms@' "$out/bin/.lms-unwrapped" \
       --replace-fail '@lm_studio@' "$out/bin/lm-studio"
 
-    # --- lms-models: list loaded models ---
-    cat > $out/bin/lms-models << 'LMS_MODELS'
-    #!/usr/bin/env bash
-    host="''${LMS_HOST:-127.0.0.1}"
-    port="''${LMS_PORT:-1234}"
-    url="http://$host:$port/v1/models"
-
-    response=$(curl -sf "$url" 2>/dev/null) || {
-      echo "Error: Could not reach LM Studio at $url" >&2
-      exit 1
-    }
-
-    if command -v jq &>/dev/null; then
-      echo "$response" | jq -r '.data[] | "\(.id)  (\(.object // "model"))"' 2>/dev/null || echo "$response"
-    else
-      echo "$response"
-    fi
-    LMS_MODELS
-    chmod +x $out/bin/lms-models
-
     # --- lmstudio-health: health check ---
     cat > $out/bin/lmstudio-health << 'LMS_HEALTH'
     #!/usr/bin/env bash
@@ -116,6 +96,12 @@ stdenv.mkDerivation {
     fi
     LMS_HEALTH
     chmod +x $out/bin/lmstudio-health
+
+    # --- lms-launch: download, load, and launch agentic tools ---
+    install -m 755 ${./lms-launch.sh} $out/bin/lms-launch
+
+    # --- lmstudio-info: display configuration ---
+    install -m 755 ${./lmstudio-info.sh} $out/bin/lmstudio-info
 
     runHook postInstall
   '';
