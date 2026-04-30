@@ -8,7 +8,7 @@
   postgresql,
 }:
 let
-  version = "0.26.0";
+  version = "0.27.0";
 
   platformMap = {
     "x86_64-linux" = "x86_64-unknown-linux-gnu";
@@ -20,10 +20,10 @@ let
   currentPlatform = platformMap.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
 
   sources = {
-    "x86_64-linux" = "sha256-V7khPnf1SGoCrTTddNvwcZudtwxpKefkYtXag6/p4SA=";
-    "aarch64-linux" = "sha256-Rq0pV+ZHGPbyV8zc8evLrPtai0g8aApWLkTsEQ1/EYw=";
-    "x86_64-darwin" = "sha256-0WPbPCipIEElKHIKlwUWRDTgj+w+pvYskhIHMfmSHYs=";
-    "aarch64-darwin" = "sha256-GQ++6BFfhqoBI8EWhxzx/kggnGidopWP6NmGfVnOANk=";
+    "x86_64-linux" = "sha256-sFPsBR45i9gmlnFOX+/1Sozmp0iG3qUkru2LVJ8xaTo=";
+    "aarch64-linux" = "sha256-4rHJeH9V3QIp1QN1V6k+3nw8SVz5+cGS0m2xttg8Ie0=";
+    "x86_64-darwin" = "sha256-fUepMTuj1GLURveAmzYRu9eQyb4QcTIcdueFqjVImB8=";
+    "aarch64-darwin" = "sha256-m4VbMRnH4EpwxNO13+Ub+tViRseHh+tK79Mwm327jSQ=";
   };
 in
 stdenv.mkDerivation {
