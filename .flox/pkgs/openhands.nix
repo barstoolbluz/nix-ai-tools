@@ -6,7 +6,7 @@
   zlib,
 }:
 let
-  version = "1.15.0";
+  version = "1.15.1";
 
   platformMap = {
     "x86_64-linux" = "linux-x86_64";
@@ -18,10 +18,10 @@ let
   currentPlatform = platformMap.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
 
   sources = {
-    "x86_64-linux" = "sha256-3Mf0fxo20X4Jh46KpFyLrAYfeypOY+umgggTmeHo4AI=";
-    "aarch64-linux" = "sha256-byT2M69/04tfCtHSEwj2bsZPgRjR/k/11kaEB7GOpG4=";
-    "x86_64-darwin" = "sha256-pUu9mUheH3Iekc5/6b1MC+PJxBlmEZ+C93Vzosq4xDY=";
-    "aarch64-darwin" = "sha256-0DFpNThIex9qQnqeEuyr3vBfRx9zmNya0Bas6k0Bv+4=";
+    "x86_64-linux" = "sha256-d1F2zEAsRFORLkJVuXhRHayIiP2/nOuB2MoOzEPKy1M=";
+    "aarch64-linux" = "sha256-qPJK1Jsxzoi5BsOUip2a1bIg1nJ5H/70TnwNU2gdkHM=";
+    "x86_64-darwin" = "sha256-pmHl+nqlA7whFw8lYJvHr+poT/L+LtUrKSQ84rW4YAU=";
+    "aarch64-darwin" = "sha256-Xg6sEczaoTknTdIC3E38T2Dcx0ITAr/W9WDsD73AUtI=";
   };
 
   src = fetchurl {
