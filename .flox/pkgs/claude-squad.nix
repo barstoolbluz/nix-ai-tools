@@ -7,7 +7,7 @@
   git,
 }:
 let
-  version = "1.0.17";
+  version = "1.0.18";
 
   platformMap = {
     "x86_64-linux" = "linux_amd64";
@@ -19,10 +19,10 @@ let
   currentPlatform = platformMap.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
 
   sources = {
-    "x86_64-linux" = "sha256-PGVaUZRCh4GdIczdLcUNMx4xbsqz2s1v40N+plsdovc=";
-    "aarch64-linux" = "sha256-cNIqYPS0eIHe5QgtDhMveO5z1lXaTieiI9nSTDIhB/M=";
-    "x86_64-darwin" = "sha256-+K25AL/yNvhrKK+V7MsWrkQdoNqhEz/AZ41AUKmSSgo=";
-    "aarch64-darwin" = "sha256-v6q4zeDfUQMi1xVakLZHsQzYPmQ+4C8jCqX+yFcYL3Q=";
+    "x86_64-linux" = "sha256-q4yw+HSvdZnusLtyqkZqB00YgUiph0W74xs+0YVf4pA=";
+    "aarch64-linux" = "sha256-jYhFa2csgmmVHLjPN2f5QvJvhW3dErhBdD5FntfLbwA=";
+    "x86_64-darwin" = "sha256-dwJK0GMq0jc4XeAE3IRKTTilmP12qWjgF9ttEWfDMc0=";
+    "aarch64-darwin" = "sha256-sOzZKJhHKKLkA83g3QIRAUtrgMNq7Sb71DWQrTMpkhk=";
   };
 in
 stdenv.mkDerivation {
