@@ -11,7 +11,7 @@
 
 buildNpmPackage rec {
   pname = "nanocoder";
-  version = "1.26.1";
+  version = "1.27.0";
 
   src = fetchFromGitHub {
     owner = "Nano-Collective";
