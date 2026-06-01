@@ -4,7 +4,7 @@
   callPackage,
 }:
 let
-  version = "0.26.0";
+  version = "0.26.1";
 
   meta = {
     description = "Mux - Desktop app for isolated, parallel agentic development";
@@ -23,19 +23,19 @@ let
   sources = {
     "x86_64-linux" = {
       url = "https://github.com/coder/mux/releases/download/v${version}/mux-${version}-x86_64.AppImage";
-      hash = "sha256-0mjtV5lYCvkEMaIOK6UExdr12N28SRlTXqNwRtbrlaU=";
+      hash = "sha256-bNNEFbGy4C7EC+QQ7mV8p6C0edQGmSp7+GKnhKF1mzI=";
     };
     "aarch64-linux" = {
       url = "https://github.com/coder/mux/releases/download/v${version}/mux-${version}-arm64.AppImage";
-      hash = "sha256-SvO8NtH8a9NtKCXjhw0BNXbl5Y7SfjBb0n1T9FLswEg=";
+      hash = "sha256-BP9v3LB5GWm5LsAuhLizcv2E7xcR684L4OltMmZkFos=";
     };
     "x86_64-darwin" = {
       url = "https://github.com/coder/mux/releases/download/v${version}/mux-${version}-x64.dmg";
-      hash = "sha256-f6PQFtXqNHxQGbGjoF3FGu+qPfsKa+ygk9QDhuVSD48=";
+      hash = "sha256-4LSQVwffdfmHjugn0KvgUTkdqbc1A1T4LBsYUje2yoU=";
     };
     "aarch64-darwin" = {
       url = "https://github.com/coder/mux/releases/download/v${version}/mux-${version}-arm64.dmg";
-      hash = "sha256-BPYE2zdeKcA1s57bpUxLWpdwiTKgMBGgLw9FyucTW9g=";
+      hash = "sha256-vkuBbkrDs/UjcRZKvxv1oG1Q/2YgJLinc/WByaakGBs=";
     };
   };
 
