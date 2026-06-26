@@ -8,7 +8,7 @@
   openssl,
 }:
 let
-  version = "0.1.5";
+  version = "0.1.6";
 
   platformMap = {
     "x86_64-linux" = "linux-x86_64";
@@ -20,10 +20,10 @@ let
   currentPlatform = platformMap.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
 
   sources = {
-    "x86_64-linux" = "sha256-HSJEeOw/oQDbq/FOjjrTZ3AgSo4CH2uiskJUapsF5kM=";
-    "aarch64-linux" = "sha256-RbBO4/Flm2fqxpdrJFXp/ri+xL2tNGk5c0xOiNa9kHc=";
-    "x86_64-darwin" = "sha256-oBoyAEqw4xAKtTDUzAW1wFqSIsU6X+ojmGJLY71FxUs=";
-    "aarch64-darwin" = "sha256-/5YjZoF1iSZ4ESOajKy7DmaRGxJipLs+o1WejT9BC2M=";
+    "x86_64-linux" = "sha256-XXLU0oIWScMsu0FfFks9R9oWKIQ6CjE7v1LYdjkRS+E=";
+    "aarch64-linux" = "sha256-vyWnu/Ui7kMqCnkmIy/gYbEIknpL9K/oqKotV4s/9jQ=";
+    "x86_64-darwin" = "sha256-BCtNk9+t6KnFp5L/ZUaZsK+x6sulOGxtkZrjmoU2nDY=";
+    "aarch64-darwin" = "sha256-aUlxWZvZnDQK/XfRsrf5Ov2Bt/si+xD7tj18RejgfjQ=";
   };
 in
 stdenv.mkDerivation {
