@@ -6,7 +6,7 @@
   gcc-unwrapped,
 }:
 let
-  version = "0.8.2";
+  version = "0.8.3";
 
   platformMap = {
     "x86_64-linux" = "x86_64-unknown-linux-gnu";
@@ -17,9 +17,9 @@ let
   currentPlatform = platformMap.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
 
   sources = {
-    "x86_64-linux" = "sha256-a59+nZh3pWuG2dhZcGa5IXP/FiUslhpxRek+mg2a39k=";
-    "aarch64-linux" = "sha256-05XMtX5tlMJqltVlGDt5ZfMm10EkRQO02sL6fDEk7BQ=";
-    "aarch64-darwin" = "sha256-UGoyCl/mYF2hCIqA06sCsttZz6lHrwqD0lUJ0zcVug4=";
+    "x86_64-linux" = "sha256-Ziq/ogr8V5BTjmmuvBvmDhiNNLpk+W/YFQW7zdjtzkQ=";
+    "aarch64-linux" = "sha256-2RDZiCHxPq980gN3hf2VuwqeFHAMtxyt6pyNkyjPjmY=";
+    "aarch64-darwin" = "sha256-E7QpLTDS4utSANYuoSh5/LxpH/9BArNkOagtKgCTEko=";
   };
 in
 stdenv.mkDerivation {
