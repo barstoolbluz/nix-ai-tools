@@ -14,8 +14,8 @@
   gcc-unwrapped,
 }:
 let
-  upstreamVersion = "0.19.1";
-  tag = "2026.7.30";
+  upstreamVersion = "0.20.0";
+  tag = "2026.8.3";
   version = "${upstreamVersion}+57cbb83";
 
   bootstrap = ''
