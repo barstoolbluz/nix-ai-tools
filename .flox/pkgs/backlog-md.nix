@@ -5,7 +5,7 @@
   autoPatchelfHook,
 }:
 let
-  version = "1.49.2";
+  version = "1.49.3";
 
   # Map Nix platforms to backlog-md release naming
   platformMap = {
@@ -19,10 +19,10 @@ let
 
   # Source hashes for each platform
   sources = {
-    "x86_64-linux" = "sha256-E42GGYvGpJwjWlUcv+ZBZF7s4/VAEi/UMRDvMucCtC4=";
-    "aarch64-linux" = "sha256-UvV8BMHrKX+l2mjIiWzBawEF68FoJJE5/3af0RFTzG4=";
-    "x86_64-darwin" = "sha256-oMphJpyQMUS2fRoIg7XRY+THSMJPoZ5AdIW1cmZDlII=";
-    "aarch64-darwin" = "sha256-t6lfuK3vuf4EeBkGIzJMducCgeSAEvQf6KJYOboI1LI=";
+    "x86_64-linux" = "sha256-czK9TV1rM1FT46nVE+pLq9iWJ8v1qd0eOs1bdRIUkuQ=";
+    "aarch64-linux" = "sha256-ok2cyC+ocks8I+PGeykHRLWfT/GIwWu/hVArwxG8uRY=";
+    "x86_64-darwin" = "sha256-Ta0yrj8UBbfAcyRnd9stJIw57d/Omr9CpxCt4uDVii4=";
+    "aarch64-darwin" = "sha256-ucxYz6dnonApGRckXz5hb9E7tpV9eAzZpNHiI/88Ciw=";
   };
 
   src = fetchurl {
