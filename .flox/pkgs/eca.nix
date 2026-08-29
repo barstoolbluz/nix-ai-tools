@@ -5,7 +5,7 @@
   unzip,
 }:
 let
-  version = "0.157.0";
+  version = "0.157.3";
 
   # Map Nix platforms to ECA release naming
   platformMap = {
@@ -19,10 +19,10 @@ let
 
   # Source hashes for each platform
   sources = {
-    "x86_64-linux" = "sha256-fuvqxODaoBBCKG57lDLsvIOl/d5p+MKdNhvv586Lv+M=";
-    "aarch64-linux" = "sha256-bkOYBP8PQg+guUoi86ZaaQXQXDZ3FvLydVo901+Huas=";
-    "x86_64-darwin" = "sha256-lCWELC8S5tWtpqBnNq24OPLvbnLfMRZXgCsAumoVAqk=";
-    "aarch64-darwin" = "sha256-gmr6vtgRWCiuSlijPI/0MvcgQdoPy8KyQB774drJPgI=";
+    "x86_64-linux" = "sha256-Pt8J1mo20Q02iPaq8SyPaCxhZqIcd8wDzuSgJBd38nE=";
+    "aarch64-linux" = "sha256-ijqbIyp3xmmz7WmKv2D2vUsPEOBJLppfZXhwmf0SqLc=";
+    "x86_64-darwin" = "sha256-Pzxbk/cjicvQCoqxYkEuGU2GFbljNjPGmiXEB6FHa8g=";
+    "aarch64-darwin" = "sha256-HJLIiTSCgUOyzdZbZC/SFLmQPU0DJk0zvCBN7uBoPd4=";
   };
 in
 stdenv.mkDerivation {
