@@ -18,13 +18,13 @@ let
 in
 buildGoModuleWithGo1261 rec {
   pname = "crush";
-  version = "0.93.1";
+  version = "0.94.1";
 
   src = fetchFromGitHub {
     owner = "charmbracelet";
     repo = "crush";
     rev = "v${version}";
-    hash = "sha256-f0rS0kQu/A3CaaQ6nl4NtKY+1xLXgwXjR8Oh10p1GsM=";
+    hash = "sha256-RWnM6U6vv+35Uaaqztz27mU3pqtQfSg1g2aUHP85Jd4=";
   };
 
   vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
