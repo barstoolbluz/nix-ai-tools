@@ -7,25 +7,25 @@
   xorg,
 }:
 let
-  version = "1.50.0";
+  version = "1.50.1";
 
   # Map Nix platforms to Goose platform naming
   platformMap = {
     "x86_64-linux" = {
       url = "https://github.com/block/goose/releases/download/v${version}/goose-x86_64-unknown-linux-gnu.tar.bz2";
-      hash = "sha256-i1364H0W41L7q+MSIzmpJw6jDjspJGyB1qIn7V816QQ=";
+      hash = "sha256-peJbxtL5UIN7V5YFFi6MhDZPzjj3T6y1rcs/+WOZTUE=";
     };
     "aarch64-linux" = {
       url = "https://github.com/block/goose/releases/download/v${version}/goose-aarch64-unknown-linux-gnu.tar.bz2";
-      hash = "sha256-IZGIhOjHVeRvZslHagPoRssCpz7fjKlY5BKR7+mEWrk=";
+      hash = "sha256-BZZT7POtWnTZNm5pDbxhTRhgvj5MTmLAQ9PMdXJVGj4=";
     };
     "x86_64-darwin" = {
       url = "https://github.com/block/goose/releases/download/v${version}/goose-x86_64-apple-darwin.tar.bz2";
-      hash = "sha256-HHkyps2DqQ8cBfXYbBpMASXxL+fbGkv4QlKg7sViJh0=";
+      hash = "sha256-21hg/ekt5B6CHM5LczetZV/XF1588UX3PHFW1r72B28=";
     };
     "aarch64-darwin" = {
       url = "https://github.com/block/goose/releases/download/v${version}/goose-aarch64-apple-darwin.tar.bz2";
-      hash = "sha256-KsGG8D5UcFen2KqijC7DS+8MNxjq2Yu72lCUUnP5MUc=";
+      hash = "sha256-lRBV+sSOUKIIcXgwenWhKF8l9qgWdbhJdP/E/mq+DWI=";
     };
   };
 
