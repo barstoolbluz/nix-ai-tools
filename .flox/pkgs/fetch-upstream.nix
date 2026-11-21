@@ -5,6 +5,6 @@
 fetchFromGitHub {
   owner = "numtide";
   repo = "llm-agents.nix";
-  rev = "fb6d019e1079a14197823e442c47e45b3ad3d6ed";
-  hash = "sha256-aUsA49ny27NyzZn/Gc74hiT/06iazG1IZe9FihxmYZM=";
+  rev = "a59764a6424689d67c1bd9070fd48afa44a47ee0";
+  hash = "sha256-v8/CnsHh4/p58E5d0k208omIYUUu6EruiKRIYYNNuE0=";
 }
