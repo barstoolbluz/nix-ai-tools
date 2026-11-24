@@ -15,7 +15,7 @@
 }:
 let
   upstreamVersion = "0.23.2";
-  tag = "0.23.3";
+  tag = "0.23.4";
   version = "${upstreamVersion}+57cbb83";
 
   bootstrap = ''
